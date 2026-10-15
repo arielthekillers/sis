@@ -46,7 +46,8 @@ class GuruStaf extends BaseController
             'sapaan'         => $this->request->getPost('sapaan'),
             'jenis_kelamin'  => $this->request->getPost('jenis_kelamin'),
             'no_hp'          => $this->request->getPost('no_hp') ?: null,
-            'status_pegawai' => $this->request->getPost('status_pegawai') ?: null,
+            'status_pegawai' => $this->request->getPost('status_pegawai') ?: 'Tetap',
+            'jabatan'        => $this->request->getPost('jabatan') ?: 'Guru Kelas',
             'tahun_masuk'    => $this->request->getPost('tahun_masuk') ?: null,
             'is_active'      => $this->request->getPost('is_active') !== null ? 1 : 0
         ];

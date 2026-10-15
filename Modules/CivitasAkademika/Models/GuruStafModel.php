@@ -14,7 +14,7 @@ class GuruStafModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'user_id', 'nip', 'nama_lengkap', 'nama_panggilan', 
-        'sapaan', 'jenis_kelamin', 'no_hp', 'status_pegawai', 'is_active',
+        'sapaan', 'jenis_kelamin', 'no_hp', 'status_pegawai', 'jabatan', 'is_active',
         'foto', 'tahun_masuk'
     ];
 

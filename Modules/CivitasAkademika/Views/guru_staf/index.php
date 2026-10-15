@@ -23,7 +23,7 @@ Manajemen data pendidik dan tenaga kependidikan di sekolah.
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div x-data="{ modalOpen: false, editMode: false, form: {id: '', nip: '', nama_lengkap: '', nama_panggilan: '', sapaan: 'Bapak', jenis_kelamin: 'L', no_hp: '', status_pegawai: '', tahun_masuk: '', is_active: true} }" @open-modal.window="modalOpen = true; editMode = false; form = {id: '', nip: '', nama_lengkap: '', nama_panggilan: '', sapaan: 'Bapak', jenis_kelamin: 'L', no_hp: '', status_pegawai: '', tahun_masuk: '', is_active: true};" @edit-modal.window="modalOpen = true; editMode = true; form = $event.detail; form.is_active = (form.is_active == 1 || form.is_active == true);">
+<div x-data="{ modalOpen: false, editMode: false, form: {id: '', nip: '', nama_lengkap: '', nama_panggilan: '', sapaan: 'Miss', jenis_kelamin: 'P', no_hp: '', jabatan: 'Guru Kelas', tahun_masuk: '', is_active: true} }" @open-modal.window="modalOpen = true; editMode = false; form = {id: '', nip: '', nama_lengkap: '', nama_panggilan: '', sapaan: 'Miss', jenis_kelamin: 'P', no_hp: '', jabatan: 'Guru Kelas', tahun_masuk: '', is_active: true};" @edit-modal.window="modalOpen = true; editMode = true; form = $event.detail; form.is_active = (form.is_active == 1 || form.is_active == true);">
     
     <!-- Tabel Data -->
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
@@ -31,9 +31,9 @@ Manajemen data pendidik dan tenaga kependidikan di sekolah.
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800">
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Nama Lengkap</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Nama Lengkap & Panggilan</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Jabatan</th>
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">NIP / ID</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -65,21 +65,23 @@ Manajemen data pendidik dan tenaga kependidikan di sekolah.
                                         <?php endif; ?>
                                     </div>
                                     <div class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
-                                        <?= esc($g['nama_panggilan']) ?> • <?= $g['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan' ?>
+                                        Panggilan: <span class="font-medium text-gray-700 dark:text-slate-300"><?= esc($g['nama_panggilan']) ?></span> • <?= $g['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan' ?>
                                         <?php if($g['tahun_masuk']): ?> • Angkatan <?= esc($g['tahun_masuk']) ?><?php endif; ?>
                                     </div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="text-sm text-gray-700 dark:text-slate-300 font-mono"><?= esc($g['nip'] ?: '-') ?></span>
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold <?= $g['jabatan'] == 'Kepala Sekolah' ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300' : ($g['jabatan'] == 'Staff TU' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' : ($g['jabatan'] == 'Guru Pendamping' ? 'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300')) ?>">
+                                <?= esc($g['jabatan'] ?: 'Guru Kelas') ?>
+                            </span>
                         </td>
                         <td class="px-6 py-4">
-                            <span class="text-xs text-gray-500 dark:text-slate-400"><?= esc($g['status_pegawai'] ?: '-') ?></span>
+                            <span class="text-sm text-gray-700 dark:text-slate-300 font-mono"><?= esc($g['nip'] ?: '-') ?></span>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button @click="$dispatch('edit-modal', {id: '<?= $g['id'] ?>', nip: '<?= esc($g['nip']) ?>', nama_lengkap: '<?= esc($g['nama_lengkap']) ?>', nama_panggilan: '<?= esc($g['nama_panggilan']) ?>', sapaan: '<?= esc($g['sapaan']) ?>', jenis_kelamin: '<?= esc($g['jenis_kelamin']) ?>', no_hp: '<?= esc($g['no_hp']) ?>', status_pegawai: '<?= esc($g['status_pegawai']) ?>', tahun_masuk: '<?= esc($g['tahun_masuk']) ?>', is_active: '<?= esc($g['is_active']) ?>'})" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors" title="Edit">
+                                <button @click="$dispatch('edit-modal', {id: '<?= $g['id'] ?>', nip: '<?= esc($g['nip']) ?>', nama_lengkap: '<?= esc($g['nama_lengkap']) ?>', nama_panggilan: '<?= esc($g['nama_panggilan']) ?>', sapaan: '<?= esc($g['sapaan']) ?>', jenis_kelamin: '<?= esc($g['jenis_kelamin']) ?>', no_hp: '<?= esc($g['no_hp']) ?>', jabatan: '<?= esc($g['jabatan'] ?? 'Guru Kelas') ?>', tahun_masuk: '<?= esc($g['tahun_masuk']) ?>', is_active: '<?= esc($g['is_active']) ?>'})" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors" title="Edit">
                                     <i class="ph ph-pencil-simple text-lg"></i>
                                 </button>
                                 <button onclick="confirmAction('Hapus Data?', 'Data yang dihapus tidak bisa dikembalikan!', 'Ya, Hapus', () => { window.location.href='<?= base_url('civitas-akademika/guru-staf/delete/'.$g['id']) ?>' })" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors" title="Hapus">
@@ -216,18 +218,17 @@ Manajemen data pendidik dan tenaga kependidikan di sekolah.
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Status Kepegawaian</label>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Jabatan <span class="text-red-500">*</span></label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <i class="ph ph-briefcase text-gray-400 text-lg"></i>
+                                            <i class="ph ph-identification-badge text-gray-400 text-lg"></i>
                                         </div>
-                                        <select name="status_pegawai" x-model="form.status_pegawai" class="block w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-gray-900 dark:text-white focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all sm:text-sm appearance-none">
-                                            <option value="">-- Pilih Status --</option>
-                                            <option value="Guru Tetap Yayasan">Guru Tetap Yayasan</option>
-                                            <option value="Guru Honorer">Guru Honorer</option>
-                                            <option value="ASN / PNS">ASN / PNS</option>
-                                            <option value="Staf Tata Usaha">Staf Tata Usaha</option>
-                                            <option value="Staf IT">Staf IT</option>
+                                        <select name="jabatan" x-model="form.jabatan" required class="block w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-gray-900 dark:text-white focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all sm:text-sm appearance-none">
+                                            <option value="Guru Kelas">Guru Kelas</option>
+                                            <option value="Kepala Sekolah">Kepala Sekolah</option>
+                                            <option value="Staff TU">Staff TU</option>
+                                            <option value="Guru Pendamping">Guru Pendamping</option>
+                                            <option value="Lainnya">Lainnya</option>
                                         </select>
                                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                             <i class="ph ph-caret-down text-gray-400"></i>
