@@ -143,6 +143,20 @@ $html = view('modul/slip_gaji_pdf', $data);
 $pdf->generate($html, 'Slip_Gaji_Budi', 'A4', 'portrait', true);
 ```
 
+## 5. Website Profil Publik vs SIS Portal (Arsitektur Pemisahan)
+Aplikasi ini memisahkan antara Website Profil Publik (marketing & pendaftaran) dan Portal SIS (sistem operasional sekolah):
+- **Website Profil Publik (`Modules/Web`):**
+  - Route: `/` (dikelola oleh `Modules\Web\Controllers\Web::index`).
+  - Layout: `app/Views/layout/web.php`.
+  - Aset Statis: `public/web/` (`css/style.css`, `js/app.js`, `img/logo.png`).
+  - UI Helper: `Fitur` (tersedia secara global via `app/Helpers/fitur_helper.php` untuk merender button, carousel, badge, accordion, dialog, dll).
+  - Route `/` dikecualikan dari filter otentikasi session pada `app/Config/Filters.php`.
+- **Portal SIS (Sistem Informasi Sekolah):**
+  - Route: `/sis` atau `/dashboard`.
+  - Layout: `app/Views/layout/main.php` (Tailwind `public/css/app.css`, Alpine.js, Dark Mode, Sidebar HMVC).
+  - Terproteksi oleh filter otentikasi Shield session.
+  - Navbar Admin memiliki tombol pintas "Website Sekolah" menuju ke `/`.
+
 ## 6. Estetika (Wajib)
 Selalu gunakan *Dark Mode Support* dengan prefix `dark:`. Gunakan warna-warna premium (*slate*, *emerald*, *blue*) dan perhatikan kerapian *padding*, *margin*, dan sudut `rounded-lg` atau `rounded-xl`. Gunakan ikon *Phosphor* (`ph ph-nama-ikon`) bukan *FontAwesome*.
 

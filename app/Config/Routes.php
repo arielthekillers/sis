@@ -2,8 +2,16 @@
 
 use CodeIgniter\Router\RouteCollection;
 
-/** @var RouteCollection $routes */
-$routes->get('/', 'Home::index');
+// --------------------------------------------------------------------
+// Website Profil Publik (Landing Page)
+// --------------------------------------------------------------------
+$routes->get('/', 'Web::index', ['namespace' => 'Modules\Web\Controllers']);
+
+// --------------------------------------------------------------------
+// SIS / Dashboard Internal
+// --------------------------------------------------------------------
+$routes->get('sis', 'Home::index', ['filter' => 'session']);
+$routes->get('dashboard', 'Home::index', ['filter' => 'session']);
 
 // --------------------------------------------------------------------
 // User Management Module

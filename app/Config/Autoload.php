@@ -44,6 +44,7 @@ class Autoload extends AutoloadConfig
         'Modules\Akademik' => ROOTPATH . 'Modules/Akademik',
         'Modules\UserManagement' => ROOTPATH . 'Modules/UserManagement',
         'Modules\Keuangan' => ROOTPATH . 'Modules/Keuangan',
+        'Modules\Web' => ROOTPATH . 'Modules/Web',
     ];
 
     /**

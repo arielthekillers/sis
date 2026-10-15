@@ -54,7 +54,7 @@
             <div class="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-0.5 custom-scrollbar">
                 
                 <!-- Main Dashboard -->
-                <a href="<?= base_url() ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= uri_string() == '' ? 'bg-blue-50 text-blue-700 dark:bg-blue-600/10 dark:text-blue-400' : '' ?>">
+                <a href="<?= base_url('sis') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= in_array(uri_string(), ['', 'sis', 'dashboard']) ? 'bg-blue-50 text-blue-700 dark:bg-blue-600/10 dark:text-blue-400' : '' ?>">
                     <i class="ph ph-squares-four text-base text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform"></i>
                     <span>Dashboard</span>
                 </a>
@@ -204,6 +204,12 @@
                         <input type="text" placeholder="Pencarian cepat (Ctrl+K)" class="pl-10 pr-4 py-2 w-64 text-sm bg-gray-100 dark:bg-slate-800 border-transparent rounded-full focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-gray-400 dark:placeholder-slate-500 dark:text-slate-200">
                     </div>
 
+                    <!-- Lihat Website Sekolah -->
+                    <a href="<?= base_url() ?>" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 transition-colors shadow-sm" title="Buka Website Profil Publik (Tab Baru)">
+                        <i class="ph ph-globe text-sm"></i>
+                        <span class="hidden sm:inline">Website Sekolah</span>
+                    </a>
+
                     <!-- Dark Mode Toggle -->
                     <button @click="darkMode = !darkMode" class="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="Toggle Dark/Light Mode">
                         <i class="text-xl" :class="darkMode ? 'ph ph-sun' : 'ph ph-moon'"></i>
@@ -229,7 +235,7 @@
                             <!-- Breadcrumbs -->
                             <nav class="flex mb-1.5" aria-label="Breadcrumb">
                                 <ol class="flex items-center space-x-2 text-[13px] text-gray-500 dark:text-slate-400">
-                                    <li><a href="<?= base_url() ?>" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"><i class="ph ph-house"></i></a></li>
+                                    <li><a href="<?= base_url('sis') ?>" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"><i class="ph ph-house"></i></a></li>
                                     <?= $this->renderSection('breadcrumb') ?>
                                 </ol>
                             </nav>
