@@ -1,0 +1,33 @@
+# CodeIgniter 4
+/vendor/
+/writable/cache/*
+/writable/debugbar/*
+/writable/logs/*
+/writable/session/*
+/writable/uploads/*
+!/writable/cache/index.html
+!/writable/debugbar/index.html
+!/writable/logs/index.html
+!/writable/session/index.html
+!/writable/uploads/index.html
+
+# Environment
+.env
+.phpunit.result.cache
+
+# Node
+/node_modules/
+npm-debug.log
+yarn-error.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# File sementara / development
+data_raw.txt
+parse.php
+parse.py
+seeder_data.php
+preload.php
+psalm-autoload.php
