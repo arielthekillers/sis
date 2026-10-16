@@ -30,7 +30,7 @@ class DaftarTagihan extends BaseController
         $likeString = "%" . $nama_bulan . " " . $tahun;
         
         $tagihanList = $this->tagihanModel
-            ->select('keu_tagihan.*, siswa.nama_lengkap, siswa.nis, keu_jenis_pembayaran.nama_pembayaran')
+            ->select('keu_tagihan.*, siswa.nama_lengkap, siswa.nis, siswa.no_hp_ortu, keu_jenis_pembayaran.nama_pembayaran')
             ->join('siswa', 'siswa.id = keu_tagihan.siswa_id')
             ->join('keu_jenis_pembayaran', 'keu_jenis_pembayaran.id = keu_tagihan.jenis_pembayaran_id')
             ->like('keu_tagihan.judul_tagihan', $likeString, 'before')

@@ -310,6 +310,32 @@ Kirim pemberitahuan tagihan bulanan secara otomatis dengan proteksi jeda acak (A
                 Swal.fire('Error', 'Kesalahan koneksi: ' + e.message, 'error');
             }
         }
+    },
+
+    async openWaWeb(sId, phone, name) {
+        if (!phone) {
+            this.promptEditPhone(sId, name, '');
+            return;
+        }
+
+        const btn = document.getElementById('btn-waweb-' + sId);
+        const originalContent = btn ? btn.innerHTML : '';
+        if (btn) btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i>';
+
+        try {
+            const res = await fetch(`<?= base_url('keuangan/broadcast-tagihan/get-message') ?>?siswa_id=${sId}&bulan=${this.bulanAktif}&tahun=${this.tahunAktif}`);
+            const data = await res.json();
+
+            if (data.status === 'success' && data.wa_link) {
+                window.open(data.wa_link, '_blank');
+            } else {
+                Swal.fire('Perhatian', data.message || 'Gagal memformat pesan WhatsApp.', 'warning');
+            }
+        } catch(e) {
+            Swal.fire('Error', 'Kesalahan koneksi: ' + e.message, 'error');
+        } finally {
+            if (btn) btn.innerHTML = originalContent;
+        }
     }
 }" 
 @start-broadcast.window="startBroadcast()"
@@ -471,16 +497,26 @@ class="space-y-6">
                         <td class="py-3.5 px-4 text-center whitespace-nowrap">
                             <div class="flex items-center justify-center gap-1.5">
                                 <?php if (!empty($s['no_hp_ortu'])): ?>
+                                <!-- 1. Tombol Kirim Manual via WhatsApp Web (Selalu Aktif & Gratis) -->
+                                <button type="button" id="btn-waweb-<?= $s['siswa_id'] ?>" @click="openWaWeb(<?= $s['siswa_id'] ?>, '<?= esc($s['no_hp_ortu']) ?>', '<?= esc(addslashes($s['nama_lengkap'])) ?>')" title="Kirim manual via WhatsApp Web (termasuk akumulasi tunggakan)"
+                                    class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold transition-colors flex items-center gap-1 shadow-xs active:scale-95">
+                                    <i class="ph ph-whatsapp-logo text-sm text-emerald-600 dark:text-emerald-400"></i>
+                                    <span>WA Web</span>
+                                </button>
+
+                                <?php if ($waIsActive): ?>
+                                <!-- 2. Tombol Otomatis API (Jika Wapify Diaktifkan) -->
                                 <button type="button" id="btn-check-<?= $s['siswa_id'] ?>" @click="checkSingleContact('<?= esc($s['no_hp_ortu']) ?>', <?= $s['siswa_id'] ?>)" title="Cek apakah nomor terdaftar di WhatsApp"
-                                    class="px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 text-xs font-semibold transition-colors flex items-center gap-1">
+                                    class="px-2 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 text-xs font-semibold transition-colors flex items-center gap-1">
                                     <i class="ph ph-check-circle"></i>
-                                    <span>Cek WA</span>
                                 </button>
-                                <button type="button" @click="sendSingleReminder(<?= $s['siswa_id'] ?>, '<?= esc($s['no_hp_ortu']) ?>', '<?= esc(addslashes($s['nama_lengkap'])) ?>')" title="Kirim pengingat ke siswa ini"
-                                    class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors flex items-center gap-1 shadow-xs">
-                                    <i class="ph ph-whatsapp-logo text-sm"></i>
-                                    <span>Kirim</span>
+                                <button type="button" @click="sendSingleReminder(<?= $s['siswa_id'] ?>, '<?= esc($s['no_hp_ortu']) ?>', '<?= esc(addslashes($s['nama_lengkap'])) ?>')" title="Kirim otomatis via Wapify API"
+                                    class="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors flex items-center gap-1 shadow-xs">
+                                    <i class="ph ph-paper-plane-tilt text-xs"></i>
+                                    <span>Kirim API</span>
                                 </button>
+                                <?php endif; ?>
+
                                 <?php else: ?>
                                 <button type="button" @click="promptEditPhone(<?= $s['siswa_id'] ?>, '<?= esc(addslashes($s['nama_lengkap'])) ?>', '')" class="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-semibold transition-colors flex items-center gap-1">
                                     <i class="ph ph-plus-circle"></i>

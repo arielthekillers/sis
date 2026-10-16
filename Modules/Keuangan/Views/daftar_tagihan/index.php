@@ -15,8 +15,66 @@ Laporan Daftar Tagihan
 Pantau jumlah tagihan yang telah diterbitkan dan pergerakan pembayarannya.
 <?= $this->endSection() ?>
 
+<?= $this->section('page_actions') ?>
+<a href="<?= base_url('keuangan/broadcast-tagihan') ?>" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-md shadow-emerald-600/20 active:scale-95">
+    <i class="ph ph-whatsapp-logo text-base"></i>
+    <span>Rekap & Broadcast Tagihan WA</span>
+</a>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
-<div x-data="{ editModalOpen: false, form: { id: '', judul: '', nominal: '' } }" @edit-tagihan.window="editModalOpen = true; form = $event.detail;">
+<div x-data="{ 
+    editModalOpen: false, 
+    form: { id: '', judul: '', nominal: '' },
+    bulanAktif: '<?= $bulan_aktif ?>',
+    tahunAktif: '<?= $tahun_aktif ?>',
+    async openWaWeb(sId, phone, name) {
+        if (!phone) {
+            const { value: newPhone } = await Swal.fire({
+                title: 'No. WhatsApp Wali Murid',
+                text: `Masukkan nomor WhatsApp orang tua/wali dari ${name}:`,
+                input: 'text',
+                inputValue: '',
+                inputPlaceholder: 'Contoh: 081234567890',
+                showCancelButton: true,
+                confirmButtonText: 'Simpan & Buka WA Web',
+                cancelButtonText: 'Batal',
+                inputValidator: (val) => (!val || !val.trim()) ? 'Nomor WhatsApp wajib diisi!' : null
+            });
+
+            if (newPhone) {
+                const formData = new FormData();
+                formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+                formData.append('siswa_id', sId);
+                formData.append('phone', newPhone.trim());
+                await fetch('<?= base_url('keuangan/broadcast-tagihan/update-phone') ?>', { method: 'POST', body: formData });
+                phone = newPhone.trim();
+            } else {
+                return;
+            }
+        }
+
+        Swal.fire({
+            title: 'Memformat Tagihan...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        try {
+            const res = await fetch(`<?= base_url('keuangan/broadcast-tagihan/get-message') ?>?siswa_id=${sId}&bulan=${this.bulanAktif}&tahun=${this.tahunAktif}`);
+            const data = await res.json();
+            Swal.close();
+
+            if (data.status === 'success' && data.wa_link) {
+                window.open(data.wa_link, '_blank');
+            } else {
+                Swal.fire('Perhatian', data.message || 'Gagal memformat pesan WhatsApp.', 'warning');
+            }
+        } catch(e) {
+            Swal.fire('Error', 'Kesalahan koneksi: ' + e.message, 'error');
+        }
+    }
+}" @edit-tagihan.window="editModalOpen = true; form = $event.detail;">
 <!-- Filter Form -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6 mb-6">
     <form method="GET" action="<?= base_url('keuangan/daftar-tagihan') ?>" class="flex flex-col sm:flex-row gap-4 items-end">
@@ -135,10 +193,18 @@ Pantau jumlah tagihan yang telah diterbitkan dan pergerakan pembayarannya.
                             <?= esc($t['status']) ?>
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-right">
-                        <button @click="$dispatch('edit-tagihan', { id: <?= $t['id'] ?>, judul: '<?= addslashes($t['judul_tagihan']) ?>', nominal: <?= $t['nominal_tagihan'] ?> })" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors" title="Edit Nominal">
-                            <i class="ph ph-pencil-simple text-lg"></i>
-                        </button>
+                    <td class="px-6 py-4 text-right whitespace-nowrap">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <?php if ($t['status'] != 'Lunas'): ?>
+                            <button type="button" @click="openWaWeb(<?= $t['siswa_id'] ?>, '<?= esc($t['no_hp_ortu'] ?? '') ?>', '<?= esc(addslashes($t['nama_lengkap'])) ?>')" class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-lg transition-colors flex items-center gap-1 text-xs font-semibold shadow-2xs active:scale-95" title="Kirim Pengingat Tagihan ke WhatsApp Web (Akumulasi Tunggakan)">
+                                <i class="ph ph-whatsapp-logo text-sm text-emerald-600 dark:text-emerald-400"></i>
+                                <span>WA Web</span>
+                            </button>
+                            <?php endif; ?>
+                            <button @click="$dispatch('edit-tagihan', { id: <?= $t['id'] ?>, judul: '<?= addslashes($t['judul_tagihan']) ?>', nominal: <?= $t['nominal_tagihan'] ?> })" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors" title="Edit Nominal">
+                                <i class="ph ph-pencil-simple text-base"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>

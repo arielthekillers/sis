@@ -96,6 +96,7 @@ $routes->group('keuangan', ['namespace' => 'Modules\Keuangan\Controllers', 'filt
     
     // Broadcast Tagihan WhatsApp
     $routes->get('broadcast-tagihan', 'BroadcastTagihan::index');
+    $routes->get('broadcast-tagihan/get-message', 'BroadcastTagihan::getMessageAjax');
     $routes->post('broadcast-tagihan/check-contact', 'BroadcastTagihan::checkContactAjax');
     $routes->post('broadcast-tagihan/send-reminder', 'BroadcastTagihan::sendReminderAjax');
     $routes->post('broadcast-tagihan/update-phone', 'BroadcastTagihan::updatePhoneAjax');
