@@ -8,6 +8,11 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Paksa HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
     # Blokir akses ke file sensitif
     RewriteRule ^(\.env|env|composer\.(json|lock)|package(-lock)?\.json|GEMINI\.md|plan\.md|\.git) - [F,L,NC]
 
