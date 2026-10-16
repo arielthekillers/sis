@@ -6,8 +6,8 @@ use CodeIgniter\Router\RouteCollection;
 // Website Profil Publik (Landing Page)
 // --------------------------------------------------------------------
 $routes->get('/', 'Web::index', ['namespace' => 'Modules\Web\Controllers']);
-$routes->match(['get', 'post'], 'spp', 'Spp::index', ['namespace' => 'Modules\Web\Controllers']);
-$routes->match(['get', 'post'], 'cek-tagihan', static function () {
+$routes->match(['GET', 'POST'], 'spp', 'Spp::index', ['namespace' => 'Modules\Web\Controllers']);
+$routes->match(['GET', 'POST'], 'cek-tagihan', static function () {
     $q = service('request')->getUri()->getQuery();
     return redirect()->to(base_url('spp') . ($q ? '?' . $q : ''));
 });

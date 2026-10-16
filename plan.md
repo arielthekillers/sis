@@ -32,6 +32,29 @@ Modul untuk mengatur tarif, tagihan massal, kasir, hingga riwayat.
 - [x] **Menu Riwayat Transaksi (Arsip Kuitansi)**: Daftar riwayat kuitansi untuk keperluan cetak ulang dan batal (void).
 - [x] **Pengeluaran Kas Operasional**: Pencatatan beban biaya, ATK, pemeliharaan, kategori beban, dan unggah bukti nota fisik.
 - [x] **Buku Kas Umum (Laporan Arus Kas Komprehensif)**: Integrasi kas masuk (kasir) dan kas keluar (pengeluaran), saldo kas berjalan, rekapitulasi harian, dan format jurnal akuntansi siap cetak resmi.
+- [x] **Broadcast Tagihan WhatsApp (Wapify API + Manual WA Web)**: Pengiriman tagihan massal otomatis dengan mesin anti-banned (jitter delay, spintax) serta opsi kirim manual 1-klik tanpa API.
+- [x] **Portal SPP Publik Mandiri (`/spp`)**: Akses orang tua berbasis NIS dengan tabel 12 bulan (Januari–Desember), filter 3 tahun, status lunas/belum lunas, rekening transfer 1-klik salin, dan konfirmasi WhatsApp.
+- [x] **Pengecekan Status SPP Guru & Staf (`/keuangan/status-spp`)**: Pengecekan instan keamanan pembayaran anak ("Aman vs Belum Aman"), integrasi tombol bayar kasir dan kirim status WA ke ortu.
 
-## Langkah 5: Dashboard & UI/UX Global
+## Langkah 5: Dashboard & Pengaturan Sistem Global
 - [x] **Dashboard Home (Beranda)**: Menampilkan metrik utama sekolah (grafik, statistik pendapatan, dll) yang elegan.
+- [x] **Konfigurasi Sistem Dinamis (`/konfigurasi`)**: Profil sekolah, rekening bank, gateway WhatsApp Wapify, template pengingat, dan runtime query caching.
+
+## Langkah 6: Rencana Pengembangan Masa Depan (Backlog / Future Enhancements)
+Daftar rencana fitur tambahan untuk dikerjakan pada tahap berikutnya:
+
+### 1. Penerimaan Peserta Didik Baru (PPDB Online / Digital)
+- [ ] **Formulir Pendaftaran Calon Siswa Mandiri**: Form publik di website sekolah untuk orang tua mendaftarkan ananda secara online.
+- [ ] **Unggah Berkas Persyaratan**: Fitur upload dokumen (Akta Kelahiran, Kartu Keluarga, KTP Ortu, Foto).
+- [ ] **Panel Verifikasi Berkas & Seleksi Admin**: Tata Usaha dapat memverifikasi berkas, menjadwalkan observasi, dan menentukan status kelulusan (Diterima / Menunggu / Ditolak).
+- [ ] **Konversi Otomatis ke Siswa Aktif**: Saat calon siswa dinyatakan diterima dan menyelesaikan administrasi, data otomatis ditransfer ke tabel `siswa`.
+
+### 2. Pencadangan Basis Data & Keamanan Otomatis (Backup & Maintenance)
+- [ ] **Pencadangan Database Otomatis (Backup Scheduler)**: Fitur backup basis data berkala (harian/mingguan) via cron job / spark command.
+- [ ] **Download / Restore Backup**: Tombol unduh cadangan SQL langsung dari menu Pengaturan Sistem.
+- [ ] **Audit Trail / Activity Log**: Pencatatan riwayat aktivitas pengguna penting (siapa mengubah tagihan, siapa menghapus data).
+
+### 3. Modul Akademik Lanjutan (Presensi & Rapor)
+- [ ] **Kehadiran / Presensi Harian**: Pencatatan absensi siswa harian per rombel serta presensi kehadiran guru/staf.
+- [ ] **Notifikasi Absensi ke Wali Murid**: Pesan WhatsApp otomatis jika siswa tidak hadir / terlambat.
+- [ ] **Penilaian & E-Rapor**: Manajemen nilai capaian perkembangan anak usia dini / Kurikulum Merdeka dan cetak buku rapor PDF.

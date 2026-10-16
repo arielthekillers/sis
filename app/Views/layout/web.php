@@ -50,8 +50,8 @@
 
 <footer class="k-footer">
   <div class="k-container">
-    <h4>KB Rumah Semut Kecil · Islamic Montessori</h4>
-    <p>Preschool & Kindergarten Ramah Anak dan Menyenangkan · Info WhatsApp: 0812-XXXX-XXXX</p>
+    <h4><?= esc(app_setting('school_name', 'KB Rumah Semut Kecil · Islamic Montessori')) ?></h4>
+    <p>Preschool & Kindergarten Ramah Anak dan Menyenangkan · Info WhatsApp: <?= esc(app_setting('school_whatsapp', '0812-3456-7890')) ?></p>
     <div style="margin: 12px 0; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
       <a href="<?= base_url('spp') ?>" style="color:#fff;text-decoration:none;font-weight:700;font-size:0.9rem;background:#10b981;padding:6px 16px;border-radius:99px;display:inline-block;">
         💳 SPP Siswa
