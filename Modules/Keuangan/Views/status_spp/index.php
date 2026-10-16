@@ -85,61 +85,61 @@ Cek cepat status pembayaran siswa saat orang tua/wali murid menanyakan keamanan 
 
     <!-- STATUS AMAN / BELUM AMAN HERO BANNER -->
     <?php if ($isAman): ?>
-    <div class="bg-gradient-to-r from-emerald-500/15 via-emerald-500/10 to-transparent dark:from-emerald-950/40 dark:via-emerald-950/20 border-2 border-emerald-500/30 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
+    <div class="bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent dark:from-emerald-950/20 dark:via-slate-800 border border-emerald-200/80 dark:border-emerald-900/40 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
         <div class="flex items-start sm:items-center gap-4">
-            <div class="w-16 h-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-3xl shadow-lg shadow-emerald-500/30 shrink-0">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 flex items-center justify-center text-2xl shrink-0">
                 <i class="ph ph-shield-check"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 uppercase tracking-wider">
-                        <i class="ph ph-check-circle"></i> AMAN 100%
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
+                        <i class="ph ph-check-circle"></i> AMAN
                     </span>
-                    <span class="text-xs text-emerald-700 dark:text-emerald-400 font-semibold">Bebas Tunggakan</span>
+                    <span class="text-xs text-emerald-700 dark:text-emerald-400 font-medium">Bebas Tunggakan</span>
                 </div>
-                <h3 class="text-xl sm:text-2xl font-black text-emerald-900 dark:text-emerald-300 mt-1">
-                    Pembayaran SPP Sudah Aman!
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mt-1">
+                    Pembayaran SPP Sudah Aman
                 </h3>
-                <p class="text-xs sm:text-sm text-emerald-800/90 dark:text-emerald-400/90 mt-0.5">
-                    Seluruh kewajiban pembayaran ananda <strong class="font-bold underline"><?= esc($siswa['nama_lengkap']) ?></strong> telah lunas. Tidak ada tagihan yang tertunda.
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-slate-400 mt-0.5">
+                    Seluruh kewajiban pembayaran ananda <strong class="text-gray-900 dark:text-white font-semibold"><?= esc($siswa['nama_lengkap']) ?></strong> telah lunas diselesaikan.
                 </p>
             </div>
         </div>
 
         <div class="sm:text-right shrink-0 pt-2 sm:pt-0">
-            <span class="text-xs text-emerald-700 dark:text-emerald-400 block font-semibold uppercase tracking-wider">Sisa Kewajiban:</span>
-            <span class="text-2xl sm:text-3xl font-black text-emerald-700 dark:text-emerald-400 font-mono">Rp 0</span>
+            <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">Sisa Kewajiban:</span>
+            <span class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">Rp 0</span>
         </div>
     </div>
     <?php else: ?>
-    <div class="bg-gradient-to-r from-rose-500/15 via-rose-500/10 to-transparent dark:from-rose-950/40 dark:via-rose-950/20 border-2 border-rose-500/30 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
+    <div class="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-950/20 dark:via-slate-800 border border-amber-200/80 dark:border-amber-900/40 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
         <div class="flex items-start sm:items-center gap-4">
-            <div class="w-16 h-16 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-3xl shadow-lg shadow-rose-600/30 shrink-0">
-                <i class="ph ph-warning-octagon"></i>
+            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 flex items-center justify-center text-2xl shrink-0">
+                <i class="ph ph-receipt"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-300 uppercase tracking-wider">
-                        <i class="ph ph-warning"></i> BELUM AMAN
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300">
+                        <i class="ph ph-clock"></i> Menunggu Pembayaran
                     </span>
-                    <span class="text-xs text-rose-700 dark:text-rose-400 font-semibold"><?= $stats['countBelumBayar'] + $stats['countMencicil'] ?> Tagihan Tertunda</span>
+                    <span class="text-xs text-amber-700 dark:text-amber-400 font-medium"><?= $stats['countBelumBayar'] + $stats['countMencicil'] ?> Tagihan Belum Lunas</span>
                 </div>
-                <h3 class="text-xl sm:text-2xl font-black text-rose-900 dark:text-rose-300 mt-1">
-                    Terdapat Tunggakan Pembayaran SPP
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white mt-1">
+                    Ada Tagihan SPP Belum Lunas
                 </h3>
-                <p class="text-xs sm:text-sm text-rose-800/90 dark:text-rose-400/90 mt-0.5">
-                    Ananda <strong class="font-bold underline"><?= esc($siswa['nama_lengkap']) ?></strong> masih memiliki kewajiban pembayaran yang belum diselesaikan.
+                <p class="text-xs sm:text-sm text-gray-600 dark:text-slate-400 mt-0.5">
+                    Terdapat tagihan SPP ananda <strong class="text-gray-900 dark:text-white font-semibold"><?= esc($siswa['nama_lengkap']) ?></strong> yang belum diselesaikan.
                 </p>
             </div>
         </div>
 
         <div class="sm:text-right shrink-0 pt-2 sm:pt-0">
-            <span class="text-xs text-rose-700 dark:text-rose-400 block font-semibold uppercase tracking-wider">Total Sisa Tunggakan:</span>
-            <span class="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400 font-mono"><?= rupiah($stats['totalSisa']) ?></span>
+            <span class="text-xs text-gray-500 dark:text-slate-400 block font-medium">Sisa Tagihan:</span>
+            <span class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white font-mono"><?= rupiah($stats['totalSisa']) ?></span>
             <div class="mt-2">
                 <a href="<?= base_url('keuangan/kasir/bayar/' . $siswa['id']) ?>" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
-                    <i class="ph ph-credit-card"></i> Proses Bayar Sekarang
+                   class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition-colors">
+                    <i class="ph ph-credit-card"></i> Bayar di Kasir
                 </a>
             </div>
         </div>
@@ -204,13 +204,13 @@ Cek cepat status pembayaran siswa saat orang tua/wali murid menanyakan keamanan 
                 <p class="text-xs text-gray-400 mt-3"><?= $stats['countLunas'] ?> pos tagihan lunas</p>
             </div>
 
-            <!-- Sisa Tunggakan -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border <?= $stats['totalSisa'] > 0 ? 'border-rose-200 dark:border-rose-900/40 bg-rose-50/10' : 'border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/10' ?> p-5 flex flex-col justify-between">
+            <!-- Sisa Tagihan -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 p-5 flex flex-col justify-between">
                 <div>
-                    <span class="text-[11px] font-bold <?= $stats['totalSisa'] > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' ?> uppercase tracking-wider">Sisa Tunggakan</span>
-                    <h5 class="text-2xl font-black <?= $stats['totalSisa'] > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' ?> mt-1"><?= rupiah($stats['totalSisa']) ?></h5>
+                    <span class="text-[11px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Sisa Tagihan</span>
+                    <h5 class="text-2xl font-black text-gray-900 dark:text-white mt-1"><?= rupiah($stats['totalSisa']) ?></h5>
                 </div>
-                <p class="text-xs <?= $stats['totalSisa'] > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' ?> font-semibold mt-3">
+                <p class="text-xs <?= $stats['totalSisa'] > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400' ?> font-semibold mt-3">
                     <?= $stats['totalSisa'] == 0 ? '✓ Seluruh SPP Lunas' : ($stats['countBelumBayar'] + $stats['countMencicil']) . ' tagihan belum tuntas' ?>
                 </p>
             </div>
