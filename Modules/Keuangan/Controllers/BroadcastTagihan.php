@@ -37,7 +37,9 @@ class BroadcastTagihan extends BaseController
         $namaBulan = $bulanNames[$bulan] ?? '';
         $periodeString = "%" . $namaBulan . " " . $tahun;
 
-        // Ambil seluruh tagihan yang belum lunas (Belum Bayar / Mencicil) pada periode ini
+        $tanggalBatas = date("Y-m-t", strtotime("$tahun-$bulan-01"));
+
+        // Ambil seluruh tagihan yang belum lunas (Belum Bayar / Mencicil) hingga periode ini (akumulasi tunggakan)
         $builder = $this->db->table('keu_tagihan')
             ->select('
                 keu_tagihan.id as tagihan_id,
@@ -46,6 +48,7 @@ class BroadcastTagihan extends BaseController
                 keu_tagihan.nominal_dibayar,
                 (keu_tagihan.nominal_tagihan - keu_tagihan.nominal_dibayar) as sisa_tagihan,
                 keu_tagihan.status as status_tagihan,
+                keu_tagihan.jatuh_tempo,
                 siswa.id as siswa_id,
                 siswa.nama_lengkap,
                 siswa.nis,
@@ -56,9 +59,14 @@ class BroadcastTagihan extends BaseController
             ->join('rombel_siswa', 'rombel_siswa.siswa_id = siswa.id', 'left')
             ->join('kelas', 'kelas.id = rombel_siswa.rombel_id', 'left')
             ->whereIn('keu_tagihan.status', ['Belum Bayar', 'Mencicil'])
-            ->like('keu_tagihan.judul_tagihan', $periodeString, 'before')
+            ->groupStart()
+                ->where('keu_tagihan.jatuh_tempo <=', $tanggalBatas)
+                ->orWhere('keu_tagihan.jatuh_tempo IS NULL')
+            ->groupEnd()
             ->orderBy('kelas.nama_kelas', 'ASC')
-            ->orderBy('siswa.nama_lengkap', 'ASC');
+            ->orderBy('siswa.nama_lengkap', 'ASC')
+            ->orderBy('keu_tagihan.jatuh_tempo', 'ASC')
+            ->orderBy('keu_tagihan.id', 'ASC');
 
         $tagihanRows = $builder->get()->getResultArray();
 
@@ -179,13 +187,17 @@ class BroadcastTagihan extends BaseController
             '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
             '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
         ];
-        $namaBulan = $bulanNames[$bulan] ?? '';
-        $periodeString = "%" . $namaBulan . " " . $tahun;
+        $tanggalBatas = date("Y-m-t", strtotime("$tahun-$bulan-01"));
 
         $tagihanList = $this->tagihanModel
             ->where('siswa_id', $siswaId)
             ->whereIn('status', ['Belum Bayar', 'Mencicil'])
-            ->like('judul_tagihan', $periodeString, 'before')
+            ->groupStart()
+                ->where('jatuh_tempo <=', $tanggalBatas)
+                ->orWhere('jatuh_tempo IS NULL')
+            ->groupEnd()
+            ->orderBy('jatuh_tempo', 'ASC')
+            ->orderBy('id', 'ASC')
             ->findAll();
 
         if (empty($tagihanList)) {
@@ -206,10 +218,15 @@ class BroadcastTagihan extends BaseController
         $template = app_setting('wa_reminder_template');
         if (empty($template)) {
             $template = "{salam} Bpk/Ibu Wali Murid dari *{nama_siswa}* ({kelas}).\n\n"
-                      . "Kami informasikan rincian tagihan di *{nama_sekolah}* periode *{periode}*:\n\n"
+                      . "Kami informasikan rincian tagihan administrasi sekolah di *{nama_sekolah}* untuk periode *{periode}*:\n\n"
                       . "{rincian_tagihan}\n"
                       . "💰 *TOTAL TAGIHAN: {total_tagihan}*\n\n"
-                      . "💳 Pembayaran dapat ditransfer ke:\n{info_bank}\n\n"
+                      . "💳 Pembayaran dapat ditransfer melalui:\n"
+                      . "{info_bank}\n"
+                      . "atau dapat dibayarkan langsung secara tunai di loket kasir/tata usaha sekolah.\n\n"
+                      . "📲 Konfirmasi bukti transfer pembayaran melalui WhatsApp ke:\n"
+                      . "*{nomor_konfirmasi}*\n\n"
+                      . "ℹ️ _Apabila Bapak/Ibu telah melakukan pembayaran sebelumnya, mohon abaikan pesan ini._\n\n"
                       . "_Ref: {kode_unik}_";
         }
 
@@ -223,18 +240,20 @@ class BroadcastTagihan extends BaseController
             $infoBank = app_setting('bank_name') . ' ' . app_setting('bank_account_number') . ' a.n. ' . app_setting('bank_account_holder');
         }
 
+        $nomorKonfirmasi = app_setting('payment_confirmation_phone', app_setting('school_whatsapp', '-'));
         $kodeUnik = 'TAG-' . date('ym') . '-' . substr(md5($siswaId . time()), 0, 6);
 
         $replacements = [
-            '{salam}'           => $randomSalam,
-            '{nama_siswa}'      => $siswa['nama_lengkap'],
-            '{kelas}'           => $namaKelas,
-            '{nama_sekolah}'    => app_setting('school_name', 'Sekolah'),
-            '{periode}'         => $namaBulan . ' ' . $tahun,
-            '{rincian_tagihan}' => trim($rincianText),
-            '{total_tagihan}'   => rupiah($totalTunggakan),
-            '{info_bank}'       => $infoBank,
-            '{kode_unik}'       => $kodeUnik,
+            '{salam}'            => $randomSalam,
+            '{nama_siswa}'       => $siswa['nama_lengkap'],
+            '{kelas}'            => $namaKelas,
+            '{nama_sekolah}'     => app_setting('school_name', 'Sekolah'),
+            '{periode}'          => $namaBulan . ' ' . $tahun,
+            '{rincian_tagihan}'  => trim($rincianText),
+            '{total_tagihan}'    => rupiah($totalTunggakan),
+            '{info_bank}'        => $infoBank,
+            '{nomor_konfirmasi}' => $nomorKonfirmasi,
+            '{kode_unik}'        => $kodeUnik,
         ];
 
         $pesanFinal = str_replace(array_keys($replacements), array_values($replacements), $template);

@@ -519,6 +519,17 @@ Kelola profil lembaga, pejabat penandatangan, format kuitansi, integrasi WhatsAp
                                 class="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
                                 placeholder="Contoh: Yayasan Rumah Semut Kecil">
                         </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1.5">No. WhatsApp Konfirmasi Pembayaran</label>
+                            <div class="relative">
+                                <i class="ph ph-whatsapp-logo absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 text-lg"></i>
+                                <input type="text" name="payment_confirmation_phone" value="<?= esc($settings['payment_confirmation_phone'] ?? '081234567890') ?>"
+                                    class="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 rounded-xl text-sm font-mono font-medium text-gray-900 dark:text-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                                    placeholder="Contoh: 081234567890">
+                            </div>
+                            <p class="text-[11px] text-gray-500 dark:text-slate-400 mt-1">Nomor WhatsApp petugas (Bendahara / TU) tujuan kirim bukti transfer.</p>
+                        </div>
                     </div>
 
                 </div>
@@ -761,6 +772,7 @@ Kelola profil lembaga, pejabat penandatangan, format kuitansi, integrasi WhatsAp
                             <span class="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 font-mono text-[11px]">{rincian_tagihan}</span>
                             <span class="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 font-mono text-[11px]">{total_tagihan}</span>
                             <span class="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 font-mono text-[11px]">{info_bank}</span>
+                            <span class="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 font-mono text-[11px] font-semibold">{nomor_konfirmasi}</span>
                             <span class="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 font-mono text-[11px]">{kode_unik}</span>
                         </div>
                     </div>
