@@ -286,30 +286,71 @@
   </div>
 </section>
 
-<!-- 10. Form Kontak -->
-<section id="kontak" class="k-section" style="background:#e9f6ff">
-  <div class="k-container" style="max-width:620px">
-    <h2 class="k-center">Ngobrol Bareng Kami 💌</h2>
-    <p class="k-center">Dipimpin oleh Ibu Nu'tih Kamalia, M.Pd.I bersama tim guru & staf yang hangat dan ramah.</p>
-    
-    <form onsubmit="event.preventDefault();document.getElementById('terima').showModal()" style="margin-top:24px;">
-      <input class="k-input" placeholder="Nama Lengkap Orang Tua / Wali" required>
-      <input class="k-input" type="tel" placeholder="Nomor WhatsApp Aktif" required>
-      <textarea class="k-input" rows="3" placeholder="Nama & usia ananda, serta kelas yang diminati (Toddler / Playgroup / KG-A / KG-B)"></textarea>
-      <div class="k-center" style="margin-top:12px;">
-        <button type="submit" class="k-btn c-pink lg">Kirim Pesan Sekarang</button>
+<!-- 10. Konsultasi WhatsApp -->
+<?php
+$rawWaAdmin = app_setting('school_whatsapp', '0812-3456-7890');
+$cleanWaAdmin = preg_replace('/[^0-9]/', '', $rawWaAdmin);
+if (str_starts_with($cleanWaAdmin, '0')) {
+    $cleanWaAdmin = '62' . substr($cleanWaAdmin, 1);
+}
+$defaultWaMessage = rawurlencode("Halo Admin KB Rumah Semut Kecil, saya orang tua/wali murid ingin berkonsultasi mengenai pendaftaran PPSB, perkembangan anak, dan informasi SPP sekolah.");
+$waContactLink = "https://wa.me/{$cleanWaAdmin}?text={$defaultWaMessage}";
+?>
+<section id="kontak" class="k-section" style="background:#eef8ff">
+  <div class="k-container" style="max-width:760px">
+    <h2 class="k-center">Ngobrol Bareng Kami 💬</h2>
+    <p class="k-lead k-center" style="margin-bottom:28px;">
+      Pintu konsultasi kami selalu terbuka hangat untuk Ayah & Bunda. Tanyakan langsung apa saja seputar kebutuhan pendidikan dan tumbuh kembang si kecil kepada tim kami:
+    </p>
+
+    <!-- Topik Pertanyaan & Konsultasi -->
+    <div class="k-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin-bottom:32px;">
+      <div style="background:#fff; padding:16px 20px; border-radius:18px; border:2px solid var(--sky); display:flex; align-items:flex-start; gap:12px;">
+        <span style="font-size:1.6rem; line-height:1;">🎒</span>
+        <div>
+          <strong style="font-size:0.95rem; display:block; color:var(--ink);">Pendaftaran Siswa Baru (PPSB)</strong>
+          <span style="font-size:0.8rem; color:#64748b;">Info jadwal gelombang, kuota kelas, formulir, dan syarat berkas.</span>
+        </div>
       </div>
-    </form>
+
+      <div style="background:#fff; padding:16px 20px; border-radius:18px; border:2px solid var(--mint); display:flex; align-items:flex-start; gap:12px;">
+        <span style="font-size:1.6rem; line-height:1;">🌱</span>
+        <div>
+          <strong style="font-size:0.95rem; display:block; color:var(--ink);">Tumbuh Kembang & Minat Anak</strong>
+          <span style="font-size:0.8rem; color:#64748b;">Konsultasi kesiapan sekolah ananda & kurikulum Montessori Islami.</span>
+        </div>
+      </div>
+
+      <div style="background:#fff; padding:16px 20px; border-radius:18px; border:2px solid var(--yellow); display:flex; align-items:flex-start; gap:12px;">
+        <span style="font-size:1.6rem; line-height:1;">💳</span>
+        <div>
+          <strong style="font-size:0.95rem; display:block; color:var(--ink);">Biaya Pendidikan & SPP</strong>
+          <span style="font-size:0.8rem; color:#64748b;">Rincian biaya masuk, SPP bulanan, dan kemudahan pembayaran.</span>
+        </div>
+      </div>
+
+      <div style="background:#fff; padding:16px 20px; border-radius:18px; border:2px solid var(--pink); display:flex; align-items:flex-start; gap:12px;">
+        <span style="font-size:1.6rem; line-height:1;">🏫</span>
+        <div>
+          <strong style="font-size:0.95rem; display:block; color:var(--ink);">Trial Class & Kunjungan Sekolah</strong>
+          <span style="font-size:0.8rem; color:#64748b;">Jadwalkan kunjungan santai untuk melihat langsung kelas & fasilitas ramah anak.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tombol WhatsApp Call to Action -->
+    <div class="k-center">
+      <a href="<?= $waContactLink ?>" target="_blank" rel="noopener noreferrer" 
+         style="background:#25D366; color:#fff; font-family:'Baloo 2',Nunito,sans-serif; font-size:1.2rem; font-weight:800; padding:14px 34px; border-radius:99px; box-shadow:0 6px 0 #1b9e4b; text-decoration:none; display:inline-flex; align-items:center; gap:12px; transition:transform .15s;">
+        <span style="font-size:1.5rem; line-height:1;">💬</span>
+        <span>Chat Admin via WhatsApp</span>
+      </a>
+      <p style="font-size:0.85rem; color:#64748b; margin-top:14px;">
+        Nomor WhatsApp: <strong style="color:var(--ink);"><?= esc($rawWaAdmin) ?></strong> · Respon ramah & cepat Senin–Jumat (08.00–15.00 WIB)
+      </p>
+    </div>
+
   </div>
 </section>
-
-<!-- Modal Notifikasi Pengiriman -->
-<dialog id="terima">
-  <h3>Terima kasih Ayah & Bunda! 💖</h3>
-  <p>Pesan Anda telah kami terima dengan baik. Tim resepsionis dan guru kami akan segera menghubungi nomor WhatsApp Anda.</p>
-  <div style="text-align:right; margin-top:16px;">
-    <button class="k-btn c-mint" data-close>Tutup</button>
-  </div>
-</dialog>
 
 <?= $this->endSection() ?>

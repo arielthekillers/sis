@@ -38,8 +38,7 @@
       <a href="<?= base_url('#fasilitas') ?>">Fasilitas</a>
       <a href="<?= base_url('#daftar') ?>">Pendaftaran</a>
       <a href="<?= base_url('#faq') ?>">Tanya Jawab</a>
-      <a href="<?= base_url('spp') ?>" class="k-btn sm" style="background:#10b981;color:#fff;" title="SPP Siswa">SPP 💳</a>
-      <a href="<?= base_url('sis') ?>" class="k-btn sm c-sky" title="Masuk ke Sistem Informasi Sekolah">Portal SIS 🔐</a>
+      <a href="<?= base_url('sis') ?>" target="_blank" rel="noopener noreferrer" class="k-btn sm c-sky" title="Masuk ke Sistem Informasi Sekolah">Portal SIS 🔐</a>
     </nav>
   </div>
 </header>
@@ -53,16 +52,46 @@
     <h4><?= esc(app_setting('school_name', 'KB Rumah Semut Kecil · Islamic Montessori')) ?></h4>
     <p>Preschool & Kindergarten Ramah Anak dan Menyenangkan · Info WhatsApp: <?= esc(app_setting('school_whatsapp', '0812-3456-7890')) ?></p>
     <div style="margin: 12px 0; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-      <a href="<?= base_url('spp') ?>" style="color:#fff;text-decoration:none;font-weight:700;font-size:0.9rem;background:#10b981;padding:6px 16px;border-radius:99px;display:inline-block;">
-        💳 SPP Siswa
-      </a>
-      <a href="<?= base_url('sis') ?>" style="color:var(--yellow);text-decoration:none;font-weight:700;font-size:0.9rem;background:rgba(255,255,255,0.1);padding:6px 16px;border-radius:99px;display:inline-block;">
+      <a href="<?= base_url('sis') ?>" target="_blank" rel="noopener noreferrer" style="color:var(--yellow);text-decoration:none;font-weight:700;font-size:0.9rem;background:rgba(255,255,255,0.1);padding:6px 16px;border-radius:99px;display:inline-block;">
         🔐 Masuk ke Portal Guru & Staf (SIS)
       </a>
     </div>
-    <small>© <?= date('Y') ?> RSK Preschool and Kindergarten · Seluruh Hak Cipta Dilindungi</small>
+    <small>© <?= date('Y') ?> <?= esc(app_setting('school_name', 'RSK Preschool and Kindergarten')) ?> · Seluruh Hak Cipta Dilindungi</small>
   </div>
 </footer>
+
+<!-- Flying Back to Top Button -->
+<button id="btnBackToTop" aria-label="Kembali ke atas" title="Kembali ke atas" 
+        onclick="window.scrollTo({top:0,behavior:'smooth'})"
+        style="position:fixed; bottom:26px; right:26px; z-index:90; width:48px; height:48px; border-radius:50%; background:var(--sky, #1c9bd1); color:#fff; border:3px solid #fff; box-shadow:0 6px 18px rgba(0,0,0,0.18); cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transform:translateY(14px); transition:all 0.25s cubic-bezier(0.16,1,0.3,1);">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m18 15-6-6-6 6"/>
+  </svg>
+</button>
+
+<style>
+  #btnBackToTop:hover {
+    transform: translateY(-3px) scale(1.05) !important;
+    background: var(--pink, #f2503e) !important;
+    box-shadow: 0 8px 22px rgba(242,80,62,0.35) !important;
+  }
+</style>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const btn = document.getElementById('btnBackToTop');
+    if (!btn) return;
+    if (window.scrollY > 280) {
+      btn.style.opacity = '1';
+      btn.style.visibility = 'visible';
+      btn.style.transform = 'translateY(0)';
+    } else {
+      btn.style.opacity = '0';
+      btn.style.visibility = 'hidden';
+      btn.style.transform = 'translateY(14px)';
+    }
+  });
+</script>
 
 <script src="<?= base_url('web/js/app.js') ?>"></script>
 <?= $this->renderSection('scripts') ?>

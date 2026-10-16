@@ -385,7 +385,7 @@
             <div class="flex items-center justify-center gap-3 text-[11px]">
                 <a href="<?= base_url() ?>" class="hover:text-slate-700 dark:hover:text-slate-400 hover:underline">Website Sekolah</a>
                 <span>·</span>
-                <a href="<?= base_url('sis') ?>" class="hover:text-slate-700 dark:hover:text-slate-400 hover:underline">Portal Petugas SIS 🔐</a>
+                <a href="<?= base_url('sis') ?>" target="_blank" rel="noopener noreferrer" class="hover:text-slate-700 dark:hover:text-slate-400 hover:underline">Portal Petugas SIS 🔐</a>
             </div>
         </footer>
 

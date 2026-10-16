@@ -1,0 +1,17 @@
+# ----------------------------------------------------------------------
+# Root .htaccess for CodeIgniter 4 Deployment
+# ----------------------------------------------------------------------
+
+# Matikan Directory Browsing / Index of
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Blokir akses ke file sensitif
+    RewriteRule ^(\.env|env|composer\.(json|lock)|package(-lock)?\.json|GEMINI\.md|plan\.md|\.git) - [F,L,NC]
+
+    # Teruskan semua request ke folder public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
