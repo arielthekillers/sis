@@ -38,6 +38,7 @@
       <a href="<?= base_url('#fasilitas') ?>">Fasilitas</a>
       <a href="<?= base_url('#daftar') ?>">Pendaftaran</a>
       <a href="<?= base_url('#faq') ?>">Tanya Jawab</a>
+      <a href="<?= base_url('spp') ?>" class="k-btn sm" style="background:#10b981;color:#fff;" title="SPP Siswa">SPP 💳</a>
       <a href="<?= base_url('sis') ?>" class="k-btn sm c-sky" title="Masuk ke Sistem Informasi Sekolah">Portal SIS 🔐</a>
     </nav>
   </div>
@@ -51,7 +52,10 @@
   <div class="k-container">
     <h4>KB Rumah Semut Kecil · Islamic Montessori</h4>
     <p>Preschool & Kindergarten Ramah Anak dan Menyenangkan · Info WhatsApp: 0812-XXXX-XXXX</p>
-    <div style="margin: 12px 0;">
+    <div style="margin: 12px 0; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+      <a href="<?= base_url('spp') ?>" style="color:#fff;text-decoration:none;font-weight:700;font-size:0.9rem;background:#10b981;padding:6px 16px;border-radius:99px;display:inline-block;">
+        💳 SPP Siswa
+      </a>
       <a href="<?= base_url('sis') ?>" style="color:var(--yellow);text-decoration:none;font-weight:700;font-size:0.9rem;background:rgba(255,255,255,0.1);padding:6px 16px;border-radius:99px;display:inline-block;">
         🔐 Masuk ke Portal Guru & Staf (SIS)
       </a>

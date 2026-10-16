@@ -132,35 +132,53 @@ NIS: <?= esc($siswa['nis'] ?? '-') ?> | NISN: <?= esc($siswa['nisn'] ?? '-') ?>
 
     <!-- Konten Tab Pembayaran -->
     <div x-show="activeTab === 'pembayaran'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;" x-cloak>
-        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50 dark:bg-slate-900/50 border-b border-gray-200 dark:border-slate-700 text-sm font-medium text-gray-500 dark:text-slate-400">
-                            <th class="py-3 px-4">No. Transaksi</th>
-                            <th class="py-3 px-4">Tanggal Bayar</th>
-                            <th class="py-3 px-4 text-right">Nominal</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
-                        <?php if (empty($historyPembayaran)): ?>
-                        <tr>
-                            <td colspan="3" class="py-6 text-center text-gray-500 dark:text-slate-400">
-                                <i class="ph ph-wallet text-3xl mb-2"></i>
-                                <p>Belum ada riwayat pembayaran.</p>
-                            </td>
-                        </tr>
-                        <?php else: ?>
-                            <?php foreach($historyPembayaran as $p): ?>
-                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                                <td class="py-3 px-4 font-medium text-blue-600 dark:text-blue-400"><?= esc($p['no_transaksi'] ?? '-') ?></td>
-                                <td class="py-3 px-4"><?= !empty($p['tanggal_bayar']) ? tanggal_indo($p['tanggal_bayar']) : '-' ?></td>
-                                <td class="py-3 px-4 text-right font-semibold text-gray-900 dark:text-slate-200"><?= rupiah($p['nominal_bayar'] ?? 0) ?></td>
+        <div class="space-y-4">
+            <div class="bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <i class="ph ph-shield-check text-2xl text-blue-600 dark:text-blue-400 shrink-0"></i>
+                    <div>
+                        <h4 class="text-xs font-bold text-blue-900 dark:text-blue-300">Pengecekan Status SPP Siswa (Tabel 12 Bulan)</h4>
+                        <p class="text-[11px] text-blue-700 dark:text-blue-400 mt-0.5">Lihat matriks status lunas Januari s/d Desember dan konfirmasi keamanan pembayaran ortu.</p>
+                    </div>
+                </div>
+                <a href="<?= base_url('keuangan/status-spp/' . $siswa['id']) ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all shrink-0">
+                    <span>Buka Status SPP</span>
+                    <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 dark:bg-slate-900/50 border-b border-gray-200 dark:border-slate-700 text-sm font-medium text-gray-500 dark:text-slate-400">
+                                <th class="py-3 px-4">No. Kwitansi</th>
+                                <th class="py-3 px-4">Tanggal Bayar</th>
+                                <th class="py-3 px-4">Metode</th>
+                                <th class="py-3 px-4 text-right">Total Dibayar</th>
                             </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-slate-800 text-sm">
+                            <?php if (empty($historyPembayaran)): ?>
+                            <tr>
+                                <td colspan="4" class="py-6 text-center text-gray-500 dark:text-slate-400">
+                                    <i class="ph ph-wallet text-3xl mb-2"></i>
+                                    <p>Belum ada riwayat pembayaran kasir.</p>
+                                </td>
+                            </tr>
+                            <?php else: ?>
+                                <?php foreach($historyPembayaran as $p): ?>
+                                <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+                                    <td class="py-3 px-4 font-mono font-medium text-blue-600 dark:text-blue-400"><?= esc($p['no_kwitansi'] ?? '-') ?></td>
+                                    <td class="py-3 px-4"><?= !empty($p['tanggal_bayar']) ? tanggal_indo($p['tanggal_bayar']) : '-' ?></td>
+                                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-slate-700 font-semibold"><?= esc($p['metode_pembayaran'] ?? 'Tunai') ?></span></td>
+                                    <td class="py-3 px-4 text-right font-semibold text-gray-900 dark:text-slate-200"><?= rupiah($p['total_bayar'] ?? 0) ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

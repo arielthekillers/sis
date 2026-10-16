@@ -106,7 +106,7 @@ class Siswa extends BaseController
         $historyPembayaran = [];
         try {
             $db = \Config\Database::connect();
-            $historyPembayaran = $db->table('pembayaran')
+            $historyPembayaran = $db->table('keu_pembayaran')
                 ->where('siswa_id', $id)
                 ->orderBy('tanggal_bayar', 'DESC')
                 ->get()->getResultArray();

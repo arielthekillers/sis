@@ -110,6 +110,9 @@ Manajemen data induk seluruh peserta didik (Master Siswa).
                                         'is_active' => $s['is_active']
                                     ];
                                 ?>
+                                <a href="<?= base_url('keuangan/status-spp/'.$s['id']) ?>" class="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-colors" title="Cek Status SPP (Aman / Tunggakan)">
+                                    <i class="ph ph-shield-check text-lg"></i>
+                                </a>
                                 <a href="<?= base_url('civitas-akademika/siswa/profil/'.$s['id']) ?>" class="p-1.5 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-colors" title="Lihat Profil">
                                     <i class="ph ph-user-circle text-lg"></i>
                                 </a>

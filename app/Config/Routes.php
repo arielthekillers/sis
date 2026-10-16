@@ -6,6 +6,11 @@ use CodeIgniter\Router\RouteCollection;
 // Website Profil Publik (Landing Page)
 // --------------------------------------------------------------------
 $routes->get('/', 'Web::index', ['namespace' => 'Modules\Web\Controllers']);
+$routes->match(['get', 'post'], 'spp', 'Spp::index', ['namespace' => 'Modules\Web\Controllers']);
+$routes->match(['get', 'post'], 'cek-tagihan', static function () {
+    $q = service('request')->getUri()->getQuery();
+    return redirect()->to(base_url('spp') . ($q ? '?' . $q : ''));
+});
 
 // --------------------------------------------------------------------
 // SIS / Dashboard Internal
@@ -101,6 +106,10 @@ $routes->group('keuangan', ['namespace' => 'Modules\Keuangan\Controllers', 'filt
     $routes->post('broadcast-tagihan/send-reminder', 'BroadcastTagihan::sendReminderAjax');
     $routes->post('broadcast-tagihan/update-phone', 'BroadcastTagihan::updatePhoneAjax');
     
+    // Status SPP Siswa (Pengecekan Aman / Belum Aman)
+    $routes->get('status-spp', 'StatusSpp::index');
+    $routes->get('status-spp/(:num)', 'StatusSpp::index/$1');
+
     // Kasir Pembayaran
     $routes->get('kasir', 'Kasir::index');
     $routes->get('kasir/searchAjax', 'Kasir::searchAjax');
