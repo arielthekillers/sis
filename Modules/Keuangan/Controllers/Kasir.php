@@ -154,7 +154,8 @@ class Kasir extends BaseController
         $pesanKembalian = '';
 
         // 1. Buat Kuitansi / Struk (keu_pembayaran)
-        $noKwitansi = 'PAY-' . date('Ymd-His') . '-' . rand(100, 999);
+        $prefix = app_setting('receipt_prefix', 'KW');
+        $noKwitansi = $prefix . '-' . date('Ymd-His') . '-' . rand(100, 999);
 
         // 2. Catat Transaksi Deposit Jika Ada
         if ($depositTerpakai > 0) {
@@ -310,5 +311,64 @@ class Kasir extends BaseController
         $this->pembayaranModel->delete($id);
 
         return redirect()->to('keuangan/kasir')->with('success', 'Kuitansi ' . $noKwitansi . ' berhasil dibatalkan. Data tagihan dan deposit telah di-rollback dengan aman.');
+    }
+
+    /**
+     * Kirim Bukti Kuitansi via WhatsApp (Wapify)
+     */
+    public function kirimWa($id)
+    {
+        $pembayaran = $this->pembayaranModel->find($id);
+        if (!$pembayaran) {
+            return redirect()->back()->with('error', 'Kuitansi tidak ditemukan.');
+        }
+
+        $siswa = $this->siswaModel->find($pembayaran['siswa_id']);
+        $noHp = $this->request->getPost('no_hp') ?: ($siswa['no_hp_ortu'] ?? null);
+
+        if (empty($noHp)) {
+            return redirect()->back()->with('error', 'Nomor WhatsApp belum diisi atau nomor orang tua belum terdaftar.');
+        }
+
+        $details = $this->pembayaranDetailModel
+            ->select('keu_pembayaran_detail.*, keu_tagihan.judul_tagihan')
+            ->join('keu_tagihan', 'keu_tagihan.id = keu_pembayaran_detail.tagihan_id')
+            ->where('pembayaran_id', $id)
+            ->findAll();
+
+        $appName = app_setting('app_name', 'SIS');
+        $schoolName = app_setting('school_name', 'Sekolah');
+
+        $rincian = "";
+        $no = 1;
+        foreach ($details as $d) {
+            $rincian .= "{$no}. *{$d['judul_tagihan']}*: " . rupiah($d['nominal_alokasi']) . "\n";
+            $no++;
+        }
+
+        $pesan = "📢 *BUKTI PEMBAYARAN RESMI*\n"
+               . "*{$schoolName}*\n"
+               . "------------------------------------\n\n"
+               . "Yth. Bpk/Ibu Wali Murid dari *{$siswa['nama_lengkap']}*,\n\n"
+               . "Terima kasih, pembayaran administrasi sekolah telah berhasil kami terima dengan rincian berikut:\n\n"
+               . "📄 *No. Kuitansi:* `{$pembayaran['no_kwitansi']}`\n"
+               . "📅 *Tanggal Bayar:* " . date('d M Y H:i', strtotime($pembayaran['tanggal_bayar'])) . "\n"
+               . "💳 *Metode:* {$pembayaran['metode_pembayaran']}\n\n"
+               . "📋 *Rincian Tagihan:*\n"
+               . $rincian . "\n"
+               . "💰 *TOTAL DITERIMA: " . rupiah($pembayaran['total_bayar']) . "*\n\n"
+               . "Petugas: " . app_setting('cashier_name', 'Kasir') . "\n\n"
+               . "ℹ️ _" . app_setting('receipt_footer', 'Kuitansi ini adalah bukti pembayaran yang sah.') . "_\n"
+               . "------------------------------------\n"
+               . "_Pesan otomatis dikirim oleh {$appName}_";
+
+        $wapify = new \App\Libraries\WapifyService();
+        $result = $wapify->sendMessage($noHp, $pesan);
+
+        if ($result['status'] === 'success') {
+            return redirect()->back()->with('success', 'Bukti kuitansi berhasil dikirim via WhatsApp ke ' . $noHp);
+        }
+
+        return redirect()->back()->with('error', 'Gagal kirim WhatsApp: ' . ($result['message'] ?? 'Periksa konfigurasi Wapify Anda.'));
     }
 }

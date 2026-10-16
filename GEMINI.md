@@ -94,6 +94,22 @@ Cukup panggil `$pager->links()` di View, desainnya sudah akan mengikuti *Tailwin
 Sudah ter-*autoload* secara global via `BaseController`. Langsung panggil di *View* atau *Controller*.
 - **`rupiah($angka, bool $with_symbol = true)`** -> Menghasilkan `Rp 5.000.000`
 - **`tanggal_indo($date, bool $print_day = false)`** -> Menghasilkan `17 Agustus 2026` atau `Senin, 17 Agustus 2026`. Juga otomatis menampilkan jam jika *string* waktu dikirimkan.
+- **`app_setting($key, $default = null)`** (alias `konfigurasi($key, $default)`) -> Mengambil nilai dinamis dari tabel `pengaturan` (dengan runtime caching satu query per request). Contoh: `app_setting('school_name')`, `app_setting('school_logo')`.
+
+### Gateway WhatsApp (Wapify Service)
+Sistem memiliki pustaka `App\Libraries\WapifyService` untuk mengirim notifikasi WhatsApp otomatis melalui penyedia [Wapify.biz.id](https://wapify.biz.id/docs).
+- Mengirim pesan teks, gambar + caption, dokumen PDF / slip kuitansi.
+- Mendukung pengecekan status sesi dan validasi nomor aktif WhatsApp.
+
+**Cara Pakai (Controller / Service):**
+```php
+$wapify = new \App\Libraries\WapifyService();
+// Cek status sesi
+$status = $wapify->checkSessions();
+
+// Kirim pesan teks
+$result = $wapify->sendMessage('08123456789', 'Halo! Ini bukti pembayaran sekolah.');
+```
 
 ### Manajemen Unggahan Gambar (Image Uploader)
 Sistem memiliki pustaka khusus untuk unggah gambar: `App\Libraries\ImageUploader`.

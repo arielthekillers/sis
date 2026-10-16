@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'RSK APPS - Sistem Manajemen Sekolah' ?></title>
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('uploads/logo.png') ?>">
-    <link rel="icon" type="image/svg+xml" href="<?= base_url('uploads/logo.svg') ?>">
-    <link rel="apple-touch-icon" href="<?= base_url('uploads/logo.png') ?>">
+    <title><?= $title ?? (app_setting('app_name', 'RSK APPS') . ' - Sistem Informasi Sekolah') ?></title>
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url(app_setting('school_favicon', 'uploads/logo.png')) ?>">
+    <link rel="apple-touch-icon" href="<?= base_url(app_setting('school_logo', 'uploads/logo.png')) ?>">
     <!-- Tailwind CSS output -->
     <link href="<?= base_url('css/app.css') ?>" rel="stylesheet">
     <!-- Alpine.js untuk interaksi menu & dropdown (sangat ringan) -->
@@ -38,10 +37,10 @@
             <!-- Sidebar Header -->
             <div class="flex items-center justify-between h-14 px-4 bg-gray-50 dark:bg-slate-950 border-b border-gray-200 dark:border-slate-800 shrink-0">
                 <div class="flex items-center gap-2">
-                    <img src="<?= base_url('uploads/logo.png') ?>" alt="RSK APPS" class="h-8 w-auto object-contain">
+                    <img src="<?= base_url(app_setting('school_logo', 'uploads/logo.png')) ?>" alt="<?= esc(app_setting('app_name', 'RSK APPS')) ?>" class="h-8 w-auto object-contain">
                     <div class="leading-tight">
-                        <span class="text-sm font-bold text-gray-900 dark:text-white tracking-wide">RSK <span class="text-rose-500 dark:text-rose-400">APPS</span></span>
-                        <p class="text-[9px] text-gray-400 dark:text-slate-500 leading-none">Preschool & Kindergarten</p>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white tracking-wide"><?= esc(app_setting('app_name', 'RSK APPS')) ?></span>
+                        <p class="text-[9px] text-gray-400 dark:text-slate-500 leading-none truncate max-w-[140px]"><?= esc(app_setting('app_tagline', 'Preschool & Kindergarten')) ?></p>
                     </div>
                 </div>
                 <!-- Close Button (Mobile Only) -->
@@ -130,6 +129,10 @@
                             <a href="<?= base_url('keuangan/setup-tarif') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= strpos(uri_string(), 'keuangan/setup-tarif') === 0 ? 'bg-amber-50 text-amber-700 font-semibold dark:bg-amber-500/10 dark:text-amber-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">Setup Tarif Siswa</a>
                             <a href="<?= base_url('keuangan/generate-tagihan') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= strpos(uri_string(), 'keuangan/generate-tagihan') === 0 ? 'bg-amber-50 text-amber-700 font-semibold dark:bg-amber-500/10 dark:text-amber-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">Terbitkan Tagihan</a>
                             <a href="<?= base_url('keuangan/daftar-tagihan') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= strpos(uri_string(), 'keuangan/daftar-tagihan') === 0 ? 'bg-amber-50 text-amber-700 font-semibold dark:bg-amber-500/10 dark:text-amber-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">Daftar & Laporan Tagihan</a>
+                            <a href="<?= base_url('keuangan/broadcast-tagihan') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= strpos(uri_string(), 'keuangan/broadcast-tagihan') === 0 ? 'bg-emerald-50 text-emerald-700 font-semibold dark:bg-emerald-500/10 dark:text-emerald-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?> flex items-center justify-between">
+                                <span>Broadcast Tagihan</span>
+                                <span class="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 px-1.5 py-0.2 rounded font-medium">WA</span>
+                            </a>
                             <a href="<?= base_url('keuangan/kasir') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= strpos(uri_string(), 'keuangan/kasir') === 0 ? 'bg-amber-50 text-amber-700 font-semibold dark:bg-amber-500/10 dark:text-amber-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">Kasir Pembayaran</a>
                             <a href="<?= base_url('keuangan/riwayat-transaksi') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= strpos(uri_string(), 'keuangan/riwayat-transaksi') === 0 ? 'bg-amber-50 text-amber-700 font-semibold dark:bg-amber-500/10 dark:text-amber-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">Riwayat Transaksi</a>
                             <a href="<?= base_url('keuangan/pengeluaran') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= strpos(uri_string(), 'keuangan/pengeluaran') === 0 ? 'bg-amber-50 text-amber-700 font-semibold dark:bg-amber-500/10 dark:text-amber-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">Pengeluaran Kas</a>
@@ -149,7 +152,7 @@
                 </a>
                 
                 <!-- Konfigurasi Sistem -->
-                <a href="#" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white">
+                <a href="<?= base_url('konfigurasi') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'konfigurasi') === 0 ? 'bg-blue-50 text-blue-700 dark:bg-blue-600/10 dark:text-blue-400' : '' ?>">
                     <i class="ph ph-gear text-base text-slate-500 dark:text-slate-400 group-hover:scale-110 transition-transform"></i>
                     <span>Konfigurasi Sistem</span>
                 </a>

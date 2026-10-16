@@ -44,6 +44,7 @@ class Autoload extends AutoloadConfig
         'Modules\Akademik' => ROOTPATH . 'Modules/Akademik',
         'Modules\UserManagement' => ROOTPATH . 'Modules/UserManagement',
         'Modules\Keuangan' => ROOTPATH . 'Modules/Keuangan',
+        'Modules\Konfigurasi' => ROOTPATH . 'Modules/Konfigurasi',
         'Modules\Web' => ROOTPATH . 'Modules/Web',
     ];
 
@@ -94,5 +95,5 @@ class Autoload extends AutoloadConfig
      *
      * @var list<string>
      */
-    public $helpers = ['auth', 'setting'];
+    public $helpers = ['auth', 'setting', 'app_setting', 'rupiah', 'tanggal_indo'];
 }

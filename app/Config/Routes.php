@@ -94,6 +94,12 @@ $routes->group('keuangan', ['namespace' => 'Modules\Keuangan\Controllers', 'filt
     $routes->get('daftar-tagihan', 'DaftarTagihan::index');
     $routes->post('daftar-tagihan/update-nominal', 'DaftarTagihan::updateNominal');
     
+    // Broadcast Tagihan WhatsApp
+    $routes->get('broadcast-tagihan', 'BroadcastTagihan::index');
+    $routes->post('broadcast-tagihan/check-contact', 'BroadcastTagihan::checkContactAjax');
+    $routes->post('broadcast-tagihan/send-reminder', 'BroadcastTagihan::sendReminderAjax');
+    $routes->post('broadcast-tagihan/update-phone', 'BroadcastTagihan::updatePhoneAjax');
+    
     // Kasir Pembayaran
     $routes->get('kasir', 'Kasir::index');
     $routes->get('kasir/searchAjax', 'Kasir::searchAjax');
@@ -101,6 +107,7 @@ $routes->group('keuangan', ['namespace' => 'Modules\Keuangan\Controllers', 'filt
     $routes->post('kasir/process', 'Kasir::process');
     $routes->get('kasir/cetak/(:num)', 'Kasir::cetak/$1');
     $routes->get('kasir/batal/(:num)', 'Kasir::batal/$1');
+    $routes->post('kasir/kirim-wa/(:num)', 'Kasir::kirimWa/$1');
     
     // Riwayat Transaksi
     $routes->get('riwayat-transaksi', 'RiwayatTransaksi::index');
@@ -114,6 +121,16 @@ $routes->group('keuangan', ['namespace' => 'Modules\Keuangan\Controllers', 'filt
     $routes->get('pengeluaran/delete/(:num)', 'PengeluaranKas::delete/$1');
     $routes->post('pengeluaran/kategori/save', 'PengeluaranKas::saveKategori');
     $routes->get('pengeluaran/kategori/delete/(:num)', 'PengeluaranKas::deleteKategori/$1');
+});
+
+// --------------------------------------------------------------------
+// Konfigurasi Sistem Module
+// --------------------------------------------------------------------
+$routes->group('konfigurasi', ['namespace' => 'Modules\Konfigurasi\Controllers', 'filter' => 'session'], static function ($routes) {
+    $routes->get('/', 'Konfigurasi::index');
+    $routes->post('save', 'Konfigurasi::save');
+    $routes->post('test-wapify-connection', 'Konfigurasi::testWapifyConnection');
+    $routes->post('test-wapify-send', 'Konfigurasi::testWapifySend');
 });
 
 service('auth')->routes($routes);

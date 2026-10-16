@@ -12,6 +12,9 @@ Kuitansi Pembayaran
 <?= $this->endSection() ?>
 
 <?= $this->section('page_actions') ?>
+<button @click="$dispatch('open-wa-modal')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+    <i class="ph ph-whatsapp-logo text-base"></i> Kirim WhatsApp
+</button>
 <button onclick="window.print()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
     <i class="ph ph-printer"></i> Cetak PDF
 </button>
@@ -44,17 +47,26 @@ Kuitansi Pembayaran
 }
 </style>
 
-<div class="max-w-3xl mx-auto">
+<div x-data="{ waModal: false, waPhone: '<?= esc($siswa['no_hp_ortu'] ?? '') ?>', isSendingWa: false }"
+     @open-wa-modal.window="waModal = true"
+     class="max-w-3xl mx-auto">
     <div id="print-area" class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-700 p-8">
         
         <!-- Kop Surat -->
         <div class="flex items-center justify-between border-b-2 border-gray-200 dark:border-slate-700 pb-6 mb-6">
             <div class="flex items-center gap-4">
-                <img src="<?= base_url('uploads/logo.png') ?>" alt="RSK APPS" class="h-16 w-auto object-contain">
+                <img src="<?= base_url(app_setting('school_logo', 'uploads/logo.png')) ?>" alt="<?= esc(app_setting('app_name', 'RSK APPS')) ?>" class="h-16 w-auto object-contain">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">RSK APPS</h2>
-                    <p class="text-sm font-medium text-rose-500">Rumah Semut Kecil · Preschool & Kindergarten</p>
-                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">rsk.sch.id</p>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white"><?= esc(app_setting('school_name', 'Rumah Semut Kecil')) ?></h2>
+                    <p class="text-sm font-medium text-blue-600 dark:text-blue-400"><?= esc(app_setting('app_tagline', 'Preschool & Kindergarten')) ?></p>
+                    <p class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+                        <?= esc(app_setting('school_address', '')) ?>
+                        <?= app_setting('school_city') ? '· ' . esc(app_setting('school_city')) : '' ?>
+                        <?= app_setting('school_phone') ? '· Telp: ' . esc(app_setting('school_phone')) : '' ?>
+                    </p>
+                    <?php if (app_setting('school_website')): ?>
+                    <p class="text-xs text-gray-400 dark:text-slate-500 mt-0.5"><?= esc(str_replace(['https://', 'http://'], '', app_setting('school_website'))) ?></p>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="text-right">
@@ -110,15 +122,83 @@ Kuitansi Pembayaran
             </tfoot>
         </table>
         
-        <!-- TTD -->
-        <div class="flex justify-end mt-12">
-            <div class="text-center">
-                <p class="text-sm text-gray-500 dark:text-slate-400 mb-16">Petugas / Kasir,</p>
-                <div class="w-40 border-b border-gray-400 dark:border-slate-500 mb-1"></div>
-                <p class="text-xs text-gray-500 dark:text-slate-400">Admin Keuangan</p>
+        <!-- Catatan & TTD -->
+        <div class="mt-8 pt-6 border-t border-gray-100 dark:border-slate-700/60 flex flex-col sm:flex-row items-start justify-between gap-6">
+            <div class="max-w-md">
+                <p class="text-[11px] text-gray-500 dark:text-slate-400 italic leading-relaxed">
+                    * <?= esc(app_setting('receipt_footer', 'Kuitansi ini adalah bukti pembayaran yang sah dan diterbitkan secara resmi oleh sistem.')) ?>
+                </p>
+                <?php if (app_setting('bank_account_number')): ?>
+                <div class="mt-2 text-xs text-gray-600 dark:text-slate-400 bg-gray-50 dark:bg-slate-700/40 p-2.5 rounded-lg border border-gray-100 dark:border-slate-700">
+                    <span class="font-semibold text-gray-700 dark:text-slate-300">Rekening Resmi:</span>
+                    <?= esc(app_setting('bank_name')) ?> <?= esc(app_setting('bank_account_number')) ?> a.n. <?= esc(app_setting('bank_account_holder')) ?>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="text-center shrink-0 self-end sm:self-auto">
+                <p class="text-xs text-gray-500 dark:text-slate-400 mb-1"><?= esc(app_setting('school_city', 'Bandung')) ?>, <?= date('d/m/Y', strtotime($pembayaran['tanggal_bayar'])) ?></p>
+                <p class="text-sm text-gray-600 dark:text-slate-400 mb-14">Petugas / Kasir,</p>
+                <div class="w-44 border-b border-gray-400 dark:border-slate-500 mb-1 mx-auto"></div>
+                <p class="text-xs font-semibold text-gray-800 dark:text-slate-200"><?= esc(app_setting('cashier_name', 'Admin Keuangan')) ?></p>
             </div>
         </div>
         
+    </div>
+
+    <!-- Modal Kirim WhatsApp -->
+    <div x-show="waModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" x-transition.opacity>
+        <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm" @click="waModal = false"></div>
+        <div class="min-h-full flex items-center justify-center p-4">
+            <div class="relative bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 dark:border-slate-700 space-y-5" @click.stop>
+                <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-slate-700">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-600/20 dark:text-emerald-400 flex items-center justify-center text-xl">
+                            <i class="ph ph-whatsapp-logo"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-gray-900 dark:text-white">Kirim Kuitansi WhatsApp</h3>
+                            <p class="text-xs text-gray-500 dark:text-slate-400">Via Gateway Wapify</p>
+                        </div>
+                    </div>
+                    <button @click="waModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200">
+                        <i class="ph ph-x text-lg"></i>
+                    </button>
+                </div>
+
+                <form action="<?= base_url('keuangan/kasir/kirim-wa/'.$pembayaran['id']) ?>" method="POST" @submit="isSendingWa = true" class="space-y-4">
+                    <?= csrf_field() ?>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1.5">Nomor WhatsApp Wali Murid</label>
+                        <div class="relative">
+                            <i class="ph ph-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                            <input type="text" name="no_hp" x-model="waPhone" required
+                                placeholder="08xxxxxxxxxx / 628xxxxxxxxxx"
+                                class="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-sm font-mono font-medium text-gray-900 dark:text-white focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all">
+                        </div>
+                        <p class="text-[11px] text-gray-500 dark:text-slate-400 mt-1">Otomatis terisi dari data No. HP Orang Tua siswa.</p>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-gray-50 dark:bg-slate-700/40 text-xs text-gray-600 dark:text-slate-300 space-y-1 border border-gray-100 dark:border-slate-700">
+                        <p class="font-semibold text-gray-800 dark:text-white">Rincian Transaksi:</p>
+                        <p>Siswa: <span class="font-medium"><?= esc($siswa['nama_lengkap']) ?></span> (Kelas <?= esc($kelas) ?>)</p>
+                        <p>Kuitansi: <span class="font-mono font-bold text-gray-900 dark:text-white"><?= esc($pembayaran['no_kwitansi']) ?></span></p>
+                        <p>Total Bayar: <span class="font-bold text-emerald-600 dark:text-emerald-400"><?= rupiah($pembayaran['total_bayar']) ?></span></p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button type="button" @click="waModal = false" class="px-4 py-2 text-xs font-semibold text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-xl transition-colors">
+                            Batal
+                        </button>
+                        <button type="submit" :disabled="isSendingWa" class="inline-flex items-center gap-2 px-5 py-2 text-xs font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white transition-all shadow-md shadow-emerald-600/20 active:scale-95">
+                            <i class="ph ph-spinner animate-spin" x-show="isSendingWa" style="display: none;"></i>
+                            <i class="ph ph-paper-plane-tilt text-base" x-show="!isSendingWa"></i>
+                            <span x-text="isSendingWa ? 'Mengirim...' : 'Kirim Sekarang'">Kirim Sekarang</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 <?= $this->endSection() ?>
