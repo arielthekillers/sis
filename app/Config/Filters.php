@@ -81,9 +81,9 @@ class Filters extends BaseFilters
     public array $globals = [
         'before' => [
             // 'honeypot',
-            'csrf',
+            'csrf' => ['except' => ['api/xendit/*']],
             'invalidchars',
-            'session' => ['except' => ['/', 'login*', 'register', 'auth/a/*', 'cek-tagihan*', 'spp*']],
+            'session' => ['except' => ['/', 'login*', 'register', 'auth/a/*', 'cek-tagihan*', 'spp*', 'api/xendit/*']],
         ],
         'after' => [
             // 'honeypot',

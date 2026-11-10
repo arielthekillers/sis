@@ -46,6 +46,8 @@ class Autoload extends AutoloadConfig
         'Modules\Keuangan' => ROOTPATH . 'Modules/Keuangan',
         'Modules\Konfigurasi' => ROOTPATH . 'Modules/Konfigurasi',
         'Modules\Web' => ROOTPATH . 'Modules/Web',
+        'Modules\WaliKelas' => ROOTPATH . 'Modules/WaliKelas',
+        'Modules\WaliMurid' => ROOTPATH . 'Modules/WaliMurid',
     ];
 
     /**

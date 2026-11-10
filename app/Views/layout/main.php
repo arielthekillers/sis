@@ -52,16 +52,114 @@
             <!-- Sidebar Navigation -->
             <div class="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-0.5 custom-scrollbar">
                 
+                <?php 
+                    $currUser = auth()->user();
+                    $isSuperOrDireksi = $currUser && $currUser->inGroup('superadmin', 'direksi');
+                    $isOrtu = $currUser && $currUser->inGroup('wali_murid');
+                    $isWaliKelas = $currUser && $currUser->inGroup('wali_kelas');
+                    
+                    $canMasterData = $isSuperOrDireksi;
+                    $canCivitas    = $isSuperOrDireksi || ($currUser && $currUser->inGroup('hr_manager', 'hr_staff'));
+                    $canAkademik   = $isSuperOrDireksi;
+                    $canKeuangan   = $isSuperOrDireksi || ($currUser && $currUser->inGroup('finance_manager', 'finance_staff'));
+                    $canPengaturan = $isSuperOrDireksi;
+                    $canDashboard  = $isSuperOrDireksi || $canCivitas || $canKeuangan;
+                ?>
+
+                <?php if($canDashboard): ?>
                 <!-- Main Dashboard -->
                 <a href="<?= base_url('sis') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= in_array(uri_string(), ['', 'sis', 'dashboard']) ? 'bg-blue-50 text-blue-700 dark:bg-blue-600/10 dark:text-blue-400' : '' ?>">
                     <i class="ph ph-squares-four text-base text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform"></i>
-                    <span>Dashboard</span>
+                    <span>Dashboard Utama</span>
                 </a>
+                <?php endif; ?>
 
+                <?php if($isWaliKelas): ?>
+                <div class="pt-2 pb-1">
+                    <p class="px-3 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Portal Pendidik</p>
+                </div>
+                <!-- Beranda Guru -->
+                <a href="<?= base_url('wali-kelas/dashboard') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= in_array(uri_string(), ['wali-kelas', 'wali-kelas/dashboard']) ? 'bg-blue-50 text-blue-700 dark:bg-blue-600/10 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-slate-300' ?>">
+                    <i class="ph ph-squares-four text-base text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Beranda Guru</span>
+                </a>
+                <!-- Murid Binaan -->
+                <a href="<?= base_url('wali-kelas/murid') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'wali-kelas/murid') === 0 || strpos(uri_string(), 'wali-kelas/kelas') === 0 ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-600/10 dark:text-indigo-400 font-semibold' : 'text-gray-600 dark:text-slate-300' ?>">
+                    <i class="ph ph-student text-base text-indigo-500 dark:text-indigo-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Murid Binaan</span>
+                </a>
+                <!-- Jurnal Perkembangan -->
+                <a href="<?= base_url('wali-kelas/perkembangan') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'wali-kelas/perkembangan') === 0 || strpos(uri_string(), 'wali-kelas/siswa') === 0 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-600/10 dark:text-emerald-400 font-semibold' : 'text-gray-600 dark:text-slate-300' ?>">
+                    <i class="ph ph-notebook text-base text-emerald-500 dark:text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Jurnal Perkembangan</span>
+                </a>
+                <!-- Profil & Akun -->
+                <a href="<?= base_url('wali-kelas/profil') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'wali-kelas/profil') === 0 ? 'bg-purple-50 text-purple-700 dark:bg-purple-600/10 dark:text-purple-400 font-semibold' : 'text-gray-600 dark:text-slate-300' ?>">
+                    <i class="ph ph-user-circle text-base text-purple-500 dark:text-purple-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Profil & Akun</span>
+                </a>
+                <?php endif; ?>
+
+                <?php if($isOrtu): ?>
+                <?php 
+                    $hasFulldayChild = false;
+                    if ($currUser) {
+                        try {
+                            $anakOrtu = model('Modules\CivitasAkademika\Models\OrangTuaSiswaModel')->getAnakByUserId($currUser->id);
+                            foreach ($anakOrtu as $ao) {
+                                if (($ao['program'] ?? 'Reguler') === 'Fullday') {
+                                    $hasFulldayChild = true;
+                                    break;
+                                }
+                            }
+                        } catch (\Exception $e) {}
+                    }
+                ?>
+                <div class="pt-2 pb-1">
+                    <p class="px-3 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Portal Orang Tua</p>
+                </div>
+                <!-- Beranda Ananda -->
+                <a href="<?= base_url('wali-murid/dashboard') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= in_array(uri_string(), ['wali-murid', 'wali-murid/dashboard']) ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-600/10 dark:text-emerald-400 font-semibold' : 'text-gray-600 dark:text-slate-300' ?>">
+                    <i class="ph ph-squares-four text-base text-emerald-500 dark:text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Beranda Ananda</span>
+                </a>
+                <!-- Perkembangan Ananda -->
+                <a href="<?= base_url('wali-murid/perkembangan') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'wali-murid/perkembangan') === 0 ? 'bg-blue-50 text-blue-700 dark:bg-blue-600/10 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-slate-300' ?>">
+                    <i class="ph ph-notebook text-base text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Perkembangan Ananda</span>
+                </a>
+                <!-- Tagihan & SPP -->
+                <a href="<?= base_url('wali-murid/keuangan') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'wali-murid/keuangan') === 0 ? 'bg-amber-50 text-amber-700 dark:bg-amber-600/10 dark:text-amber-400 font-semibold' : 'text-gray-600 dark:text-slate-300' ?>">
+                    <i class="ph ph-receipt text-base text-amber-500 dark:text-amber-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Tagihan & SPP</span>
+                </a>
+                <!-- Live CCTV Kelas (Hanya jika Anaknya Fullday) -->
+                <?php if($hasFulldayChild): ?>
+                <a href="<?= base_url('wali-murid/cctv') ?>" class="group flex items-center justify-between px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'wali-murid/cctv') === 0 ? 'bg-rose-50 text-rose-700 dark:bg-rose-600/10 dark:text-rose-400 font-semibold' : 'text-gray-600 dark:text-slate-300' ?>">
+                    <div class="flex items-center gap-2">
+                        <i class="ph ph-video-camera text-base text-rose-500 dark:text-rose-400 group-hover:scale-110 transition-transform"></i>
+                        <span>CCTV Online</span>
+                    </div>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse mr-1"></span>
+                        Live
+                    </span>
+                </a>
+                <?php endif; ?>
+                <!-- Profil & Akun -->
+                <a href="<?= base_url('wali-murid/profil') ?>" class="group flex items-center gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'wali-murid/profil') === 0 ? 'bg-purple-50 text-purple-700 dark:bg-purple-600/10 dark:text-purple-400 font-semibold' : 'text-gray-600 dark:text-slate-300' ?>">
+                    <i class="ph ph-user-circle text-base text-purple-500 dark:text-purple-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Profil & Akun</span>
+                </a>
+                <?php endif; ?>
+
+                <?php if($canMasterData || $canCivitas || $canAkademik || $canKeuangan): ?>
                 <div class="pt-3 pb-1">
                     <p class="px-3 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Modul Sistem</p>
                 </div>
+                <?php endif; ?>
 
+                <?php if($canMasterData): ?>
                 <!-- Modul Master Data (Dengan Submenu) -->
                 <div x-data="{ open: <?= strpos(uri_string(), 'master-data') === 0 ? 'true' : 'false' ?> }">
                     <button @click="open = !open" class="group w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'master-data') === 0 ? 'text-gray-900 dark:text-white' : '' ?>">
@@ -78,7 +176,9 @@
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if($canCivitas): ?>
                 <!-- Modul Civitas Akademika (Submenu) -->
                 <div x-data="{ open: <?= strpos(uri_string(), 'civitas-akademika') === 0 ? 'true' : 'false' ?> }">
                     <button @click="open = !open" class="group w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'civitas-akademika') === 0 ? 'text-gray-900 dark:text-white' : '' ?>">
@@ -95,7 +195,9 @@
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if($canAkademik): ?>
                 <!-- Modul Akademik -->
                 <div x-data="{ open: <?= strpos(uri_string(), 'akademik') === 0 ? 'true' : 'false' ?> }">
                     <button @click="open = !open" class="group w-full flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white <?= strpos(uri_string(), 'akademik') === 0 ? 'text-gray-900 dark:text-white' : '' ?>">
@@ -112,7 +214,9 @@
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if($canKeuangan): ?>
                 <!-- Keuangan -->
                 <div class="space-y-1" x-data="{ open: <?= strpos(uri_string(), 'keuangan') === 0 ? 'true' : 'false' ?> }">
                     <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors <?= strpos(uri_string(), 'keuangan') === 0 ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">
@@ -138,7 +242,9 @@
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
 
+                <?php if($canPengaturan): ?>
                 <div class="pt-3 pb-1">
                     <p class="px-3 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider">Pengaturan</p>
                 </div>
@@ -154,15 +260,61 @@
                     <i class="ph ph-gear text-base text-slate-500 dark:text-slate-400 group-hover:scale-110 transition-transform"></i>
                     <span>Konfigurasi Sistem</span>
                 </a>
+                <?php endif; ?>
             </div>
 
             <!-- User Profile Area di Sidebar -->
             <div class="p-3 border-t border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 shrink-0">
+                <?php 
+                    $sidebarDisplayName = 'Pengguna';
+                    $sidebarRoleName    = 'Staf';
+                    $sidebarAvatarName  = 'User';
+
+                    if ($currUser) {
+                        $sidebarDisplayName = $currUser->username;
+                        $sidebarAvatarName  = $currUser->username;
+
+                        // Jika akun ini terhubung ke profil Guru/Staf, tampilkan nama sapaan & gelar
+                        $guruProfile = null;
+                        try {
+                            $guruProfile = model('Modules\CivitasAkademika\Models\GuruStafModel')->where('user_id', $currUser->id)->first();
+                            if ($guruProfile) {
+                                $sidebarDisplayName = $guruProfile['sapaan'] . ' ' . ($guruProfile['nama_panggilan'] ?: $guruProfile['nama_lengkap']);
+                                $sidebarAvatarName  = $guruProfile['nama_lengkap'];
+                            }
+                        } catch (\Exception $e) {}
+
+                        // Jika akun ini terhubung ke orang tua murid
+                        if (empty($guruProfile)) {
+                            try {
+                                $ortuList = model('Modules\CivitasAkademika\Models\OrangTuaSiswaModel')->getAnakByUserId($currUser->id);
+                                if (!empty($ortuList)) {
+                                    $firstAnak = $ortuList[0];
+                                    $relasi = ucfirst($firstAnak['hubungan'] ?? 'Wali');
+                                    $panggilan = $firstAnak['nama_panggilan'] ?: $firstAnak['nama_lengkap'];
+                                    $sidebarDisplayName = $relasi . ' ' . $panggilan;
+                                    $sidebarAvatarName  = $sidebarDisplayName;
+                                }
+                            } catch (\Exception $e) {}
+                        }
+
+                        // Dapatkan nama peran / group
+                        try {
+                            $groups = $currUser->getGroups();
+                            $groupTitles = [];
+                            $authGroupsConfig = config('AuthGroups')->groups ?? [];
+                            foreach ($groups as $g) {
+                                $groupTitles[] = $authGroupsConfig[$g]['title'] ?? ucfirst($g);
+                            }
+                            $sidebarRoleName = implode(', ', $groupTitles) ?: 'Pengguna';
+                        } catch (\Exception $e) {}
+                    }
+                ?>
                 <div class="flex items-center gap-2">
-                    <img src="https://ui-avatars.com/api/?name=Admin+SIS&background=random" alt="Avatar" class="w-8 h-8 rounded border border-gray-300 dark:border-slate-700">
+                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($sidebarAvatarName) ?>&background=random" alt="Avatar" class="w-8 h-8 rounded border border-gray-300 dark:border-slate-700">
                     <div class="flex-1 min-w-0">
-                        <p class="text-[13px] font-medium text-gray-900 dark:text-white truncate">Administrator</p>
-                        <p class="text-[11px] text-gray-500 dark:text-slate-400 truncate">Superadmin</p>
+                        <p class="text-[13px] font-medium text-gray-900 dark:text-white truncate" title="<?= esc($sidebarDisplayName) ?>"><?= esc($sidebarDisplayName) ?></p>
+                        <p class="text-[11px] text-gray-500 dark:text-slate-400 truncate" title="<?= esc($sidebarRoleName) ?>"><?= esc($sidebarRoleName) ?></p>
                     </div>
                     <a href="<?= url_to('logout') ?>" class="text-gray-400 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1" title="Logout">
                         <i class="ph ph-sign-out text-lg"></i>

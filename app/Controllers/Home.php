@@ -8,8 +8,19 @@ use Modules\Keuangan\Models\TagihanModel;
 
 class Home extends BaseController
 {
-    public function index(): string
+    public function index()
     {
+        // 0. Cek Pengalihan Berdasarkan Peran Pengguna (Role Redirection)
+        if (auth()->loggedIn()) {
+            $user = auth()->user();
+            if ($user->inGroup('wali_murid')) {
+                return redirect()->to(base_url('wali-murid/dashboard'));
+            }
+            if ($user->inGroup('wali_kelas') && !$user->inGroup('superadmin', 'direksi', 'finance_manager')) {
+                return redirect()->to(base_url('wali-kelas/dashboard'));
+            }
+        }
+
         $siswaModel = new SiswaModel();
         $pembayaranModel = new PembayaranModel();
         $tagihanModel = new TagihanModel();

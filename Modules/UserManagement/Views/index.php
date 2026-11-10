@@ -114,10 +114,10 @@ Kelola data karyawan, hak akses (jabatan), dan foto profil mereka.
              x-transition:leave="transition ease-in duration-150" 
              x-transition:leave-start="opacity-100 scale-100" 
              x-transition:leave-end="opacity-0 scale-95" 
-             class="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-slate-700"
+             class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg border border-gray-100 dark:border-slate-700"
              @click.outside="open = false">
             
-            <div class="px-8 pt-8 pb-2 flex justify-between items-start bg-white dark:bg-slate-800">
+            <div class="px-8 pt-8 pb-2 flex justify-between items-start bg-white dark:bg-slate-800 rounded-t-2xl">
                 <div>
                     <h3 class="text-2xl font-bold text-gray-900 dark:text-slate-100">Tambah Pengguna</h3>
                     <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">Lengkapi form berikut untuk membuat akun.</p>
@@ -155,22 +155,61 @@ Kelola data karyawan, hak akses (jabatan), dan foto profil mereka.
                         </div>
                     </div>
 
-                    <div>
+                    <!-- Custom Alpine.js Minimalist Select: Jabatan (Hak Akses) -->
+                    <div x-data="{ selectOpen: false, selectedGroup: '', selectedTitle: '' }" class="relative">
                         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Jabatan (Hak Akses)</label>
+                        
+                        <input type="hidden" name="group" :value="selectedGroup" required>
+
                         <div class="relative">
-                            <i class="ph ph-identification-card absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
-                            <select name="group" required class="w-full rounded-xl border-transparent bg-gray-50 dark:bg-slate-700/50 text-gray-900 dark:text-slate-100 hover:bg-white dark:hover:bg-slate-700 focus:bg-white dark:focus:bg-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 pl-11 pr-4 py-2.5 outline-none border transition-all appearance-none">
-                                <option value="">-- Pilih Jabatan --</option>
-                                <?php foreach($available_groups as $groupKey => $groupInfo): ?>
-                                    <option value="<?= esc($groupKey) ?>"><?= esc($groupInfo['title']) ?> (<?= esc($groupInfo['description']) ?>)</option>
-                                <?php endforeach; ?>
-                            </select>
-                            <i class="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            <i class="ph ph-identification-card absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none"></i>
+                            <button 
+                                type="button" 
+                                @click="selectOpen = !selectOpen" 
+                                class="w-full rounded-xl border border-transparent bg-gray-50 dark:bg-slate-700/50 text-left pl-11 pr-10 py-2.5 outline-none transition-all hover:bg-white dark:hover:bg-slate-700 focus:bg-white dark:focus:bg-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 flex items-center justify-between"
+                                :class="selectOpen ? 'bg-white dark:bg-slate-700 border-blue-500 ring-4 ring-blue-500/10' : ''"
+                            >
+                                <span class="truncate text-sm" :class="selectedTitle ? 'text-gray-900 dark:text-slate-100 font-medium' : 'text-gray-400 dark:text-slate-400'" x-text="selectedTitle || '-- Pilih Jabatan --'"></span>
+                                <i class="ph ph-caret-down text-gray-400 transition-transform duration-200" :class="selectOpen ? 'rotate-180 text-blue-500' : ''"></i>
+                            </button>
+                        </div>
+
+                        <!-- Dropdown Menu / Popover Panel -->
+                        <div 
+                            x-show="selectOpen" 
+                            @click.outside="selectOpen = false" 
+                            x-transition:enter="transition ease-out duration-150 transform" 
+                            x-transition:enter-start="opacity-0 translate-y-1 scale-95" 
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                            x-transition:leave="transition ease-in duration-100 transform" 
+                            x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                            x-transition:leave-end="opacity-0 translate-y-1 scale-95" 
+                            class="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 p-1.5 max-h-60 overflow-y-auto custom-scrollbar"
+                            style="display: none;"
+                        >
+                            <?php foreach($available_groups as $groupKey => $groupInfo): ?>
+                                <button 
+                                    type="button" 
+                                    @click="selectedGroup = '<?= esc($groupKey) ?>'; selectedTitle = '<?= addslashes(esc($groupInfo['title'])) ?>'; selectOpen = false" 
+                                    class="w-full text-left px-3.5 py-2.5 rounded-xl transition-all flex items-start justify-between gap-3 group hover:bg-blue-50/70 dark:hover:bg-slate-700/60"
+                                    :class="selectedGroup === '<?= esc($groupKey) ?>' ? 'bg-blue-50 dark:bg-blue-900/25 text-blue-700 dark:text-blue-300' : ''"
+                                >
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400" :class="selectedGroup === '<?= esc($groupKey) ?>' ? 'text-blue-600 dark:text-blue-400' : ''">
+                                            <?= esc($groupInfo['title']) ?>
+                                        </p>
+                                        <p class="text-[11px] text-gray-400 dark:text-slate-400 font-normal leading-tight mt-0.5">
+                                            <?= esc($groupInfo['description']) ?>
+                                        </p>
+                                    </div>
+                                    <i x-show="selectedGroup === '<?= esc($groupKey) ?>'" class="ph ph-check-circle text-base text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"></i>
+                                </button>
+                            <?php endforeach; ?>
                         </div>
                     </div>
 
                 </div>
-                <div class="px-8 pb-8 pt-4 bg-white dark:bg-slate-800 flex justify-end gap-3 rounded-b-xl">
+                <div class="px-8 pb-8 pt-4 bg-white dark:bg-slate-800 flex justify-end gap-3 rounded-b-2xl">
                     <button type="button" @click="open = false" class="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-slate-300 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors">Batal</button>
                     <button type="submit" :disabled="isSubmitting" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed min-w-[130px]">
                         <i x-show="isSubmitting" class="ph ph-spinner animate-spin text-lg" style="display: none;"></i>
@@ -186,8 +225,17 @@ Kelola data karyawan, hak akses (jabatan), dan foto profil mereka.
 
 <!-- Modal Edit Pengguna (Alpine.js) -->
 <?= $this->section('content') ?>
-<div id="modalEdit" x-data="{ open: false, id: '', username: '', email: '', group: '' }" 
-     @open-modal-edit.window="open = true; id = $event.detail.id; username = $event.detail.username; email = $event.detail.email; group = $event.detail.group;" 
+<div id="modalEdit" x-data="{ 
+    open: false, 
+    id: '', 
+    username: '', 
+    email: '', 
+    group: '', 
+    selectOpen: false, 
+    selectedTitle: '',
+    groupTitles: <?= htmlspecialchars(json_encode(array_combine(array_keys($available_groups), array_column($available_groups, 'title'))), ENT_QUOTES, 'UTF-8') ?> 
+}" 
+     @open-modal-edit.window="open = true; id = $event.detail.id; username = $event.detail.username; email = $event.detail.email; group = $event.detail.group; selectOpen = false; selectedTitle = groupTitles[$event.detail.group] || $event.detail.group;" 
      x-show="open" style="display: none;" class="relative z-50">
     <div x-show="open" x-transition.opacity class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
     <div class="fixed inset-0 flex items-center justify-center p-4">
@@ -198,10 +246,10 @@ Kelola data karyawan, hak akses (jabatan), dan foto profil mereka.
              x-transition:leave="transition ease-in duration-150" 
              x-transition:leave-start="opacity-100 scale-100" 
              x-transition:leave-end="opacity-0 scale-95" 
-             class="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-gray-100 dark:border-slate-700"
+             class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg border border-gray-100 dark:border-slate-700"
              @click.outside="open = false">
             
-            <div class="px-8 pt-8 pb-2 flex justify-between items-start bg-white dark:bg-slate-800">
+            <div class="px-8 pt-8 pb-2 flex justify-between items-start bg-white dark:bg-slate-800 rounded-t-2xl">
                 <div>
                     <h3 class="text-2xl font-bold text-gray-900 dark:text-slate-100">Ubah Pengguna</h3>
                     <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">Sesuaikan informasi dan hak akses.</p>
@@ -240,22 +288,61 @@ Kelola data karyawan, hak akses (jabatan), dan foto profil mereka.
                         </div>
                     </div>
 
-                    <div>
+                    <!-- Custom Alpine.js Minimalist Select: Jabatan (Hak Akses) Edit -->
+                    <div class="relative">
                         <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Jabatan (Hak Akses)</label>
+                        
+                        <input type="hidden" name="group" :value="group" required>
+
                         <div class="relative">
-                            <i class="ph ph-identification-card absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
-                            <select name="group" required x-model="group" class="w-full rounded-xl border-transparent bg-gray-50 dark:bg-slate-700/50 text-gray-900 dark:text-slate-100 hover:bg-white dark:hover:bg-slate-700 focus:bg-white dark:focus:bg-slate-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 pl-11 pr-4 py-2.5 outline-none border transition-all appearance-none">
-                                <option value="">-- Pilih Jabatan --</option>
-                                <?php foreach($available_groups as $groupKey => $groupInfo): ?>
-                                    <option value="<?= esc($groupKey) ?>"><?= esc($groupInfo['title']) ?> (<?= esc($groupInfo['description']) ?>)</option>
-                                <?php endforeach; ?>
-                            </select>
-                            <i class="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            <i class="ph ph-identification-card absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg pointer-events-none"></i>
+                            <button 
+                                type="button" 
+                                @click="selectOpen = !selectOpen" 
+                                class="w-full rounded-xl border border-transparent bg-gray-50 dark:bg-slate-700/50 text-left pl-11 pr-10 py-2.5 outline-none transition-all hover:bg-white dark:hover:bg-slate-700 focus:bg-white dark:focus:bg-slate-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 flex items-center justify-between"
+                                :class="selectOpen ? 'bg-white dark:bg-slate-700 border-emerald-500 ring-4 ring-emerald-500/10' : ''"
+                            >
+                                <span class="truncate text-sm" :class="selectedTitle ? 'text-gray-900 dark:text-slate-100 font-medium' : 'text-gray-400 dark:text-slate-400'" x-text="selectedTitle || '-- Pilih Jabatan --'"></span>
+                                <i class="ph ph-caret-down text-gray-400 transition-transform duration-200" :class="selectOpen ? 'rotate-180 text-emerald-500' : ''"></i>
+                            </button>
+                        </div>
+
+                        <!-- Dropdown Menu / Popover Panel -->
+                        <div 
+                            x-show="selectOpen" 
+                            @click.outside="selectOpen = false" 
+                            x-transition:enter="transition ease-out duration-150 transform" 
+                            x-transition:enter-start="opacity-0 translate-y-1 scale-95" 
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100" 
+                            x-transition:leave="transition ease-in duration-100 transform" 
+                            x-transition:leave-start="opacity-100 translate-y-0 scale-100" 
+                            x-transition:leave-end="opacity-0 translate-y-1 scale-95" 
+                            class="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 p-1.5 max-h-60 overflow-y-auto custom-scrollbar"
+                            style="display: none;"
+                        >
+                            <?php foreach($available_groups as $groupKey => $groupInfo): ?>
+                                <button 
+                                    type="button" 
+                                    @click="group = '<?= esc($groupKey) ?>'; selectedTitle = '<?= addslashes(esc($groupInfo['title'])) ?>'; selectOpen = false" 
+                                    class="w-full text-left px-3.5 py-2.5 rounded-xl transition-all flex items-start justify-between gap-3 group hover:bg-emerald-50/70 dark:hover:bg-slate-700/60"
+                                    :class="group === '<?= esc($groupKey) ?>' ? 'bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300' : ''"
+                                >
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400" :class="group === '<?= esc($groupKey) ?>' ? 'text-emerald-600 dark:text-emerald-400' : ''">
+                                            <?= esc($groupInfo['title']) ?>
+                                        </p>
+                                        <p class="text-[11px] text-gray-400 dark:text-slate-400 font-normal leading-tight mt-0.5">
+                                            <?= esc($groupInfo['description']) ?>
+                                        </p>
+                                    </div>
+                                    <i x-show="group === '<?= esc($groupKey) ?>'" class="ph ph-check-circle text-base text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"></i>
+                                </button>
+                            <?php endforeach; ?>
                         </div>
                     </div>
 
                 </div>
-                <div class="px-8 pb-8 pt-4 bg-white dark:bg-slate-800 flex justify-end gap-3 rounded-b-xl">
+                <div class="px-8 pb-8 pt-4 bg-white dark:bg-slate-800 flex justify-end gap-3 rounded-b-2xl">
                     <button type="button" @click="open = false" class="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-slate-300 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors">Batal</button>
                     <button type="submit" :disabled="isSubmitting" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed min-w-[170px]">
                         <i x-show="isSubmitting" class="ph ph-spinner animate-spin text-lg" style="display: none;"></i>

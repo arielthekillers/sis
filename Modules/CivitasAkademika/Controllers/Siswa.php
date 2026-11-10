@@ -51,6 +51,7 @@ class Siswa extends BaseController
             'nama_ibu'       => $this->request->getPost('nama_ibu') ?: null,
             'no_hp_ortu'     => $this->request->getPost('no_hp_ortu') ?: null,
             'status_siswa'   => $this->request->getPost('status_siswa') ?: 'Aktif',
+            'program'        => $this->request->getPost('program') ?: 'Reguler',
             'is_active'      => $this->request->getPost('is_active') !== null ? 1 : 0
         ];
 
@@ -112,13 +113,219 @@ class Siswa extends BaseController
                 ->get()->getResultArray();
         } catch (\Exception $e) {}
 
+        $orangTuaList = [];
+        try {
+            $db = \Config\Database::connect();
+            $orangTuaList = $db->table('orang_tua_siswa')
+                ->select('orang_tua_siswa.*, users.username, users.initial_password, auth_identities.secret as email')
+                ->join('users', 'users.id = orang_tua_siswa.user_id')
+                ->join('auth_identities', 'auth_identities.user_id = users.id AND auth_identities.type = "email_password"', 'left')
+                ->where('orang_tua_siswa.siswa_id', $id)
+                ->where('orang_tua_siswa.deleted_at IS NULL')
+                ->get()->getResultArray();
+
+            // Pastikan semua akun orang tua memiliki initial_password
+            $usersProvider = auth()->getProvider();
+            foreach ($orangTuaList as &$otItem) {
+                if (empty($otItem['initial_password'])) {
+                    $pool = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ@#';
+                    $autoPassword = substr(str_shuffle(str_repeat($pool, 4)), 0, 8);
+                    $uObj = $usersProvider->findById($otItem['user_id']);
+                    if ($uObj) {
+                        $uObj->fill(['password' => $autoPassword]);
+                        $usersProvider->save($uObj);
+                    }
+                    $db->table('users')->where('id', $otItem['user_id'])->update(['initial_password' => $autoPassword]);
+                    $otItem['initial_password'] = $autoPassword;
+                }
+            }
+            unset($otItem);
+        } catch (\Exception $e) {}
+
+        $perkembanganModel = new \Modules\CivitasAkademika\Models\PerkembanganSiswaModel();
+        $perkembanganList = $perkembanganModel->getBySiswa($id, false);
+
+        $userModel = new \CodeIgniter\Shield\Models\UserModel();
+        $availableOrtuUsers = $userModel
+            ->select('users.*, auth_identities.secret as email')
+            ->join('auth_groups_users', 'auth_groups_users.user_id = users.id')
+            ->join('auth_identities', 'auth_identities.user_id = users.id AND auth_identities.type = "email_password"', 'left')
+            ->where('auth_groups_users.group', 'wali_murid')
+            ->findAll();
+
         $data = [
-            'title' => 'Profil Siswa',
-            'siswa' => $siswa,
-            'historyKelas' => $historyKelas,
-            'historyPembayaran' => $historyPembayaran
+            'title'              => 'Profil Siswa',
+            'siswa'              => $siswa,
+            'historyKelas'       => $historyKelas,
+            'historyPembayaran'  => $historyPembayaran,
+            'orangTuaList'       => $orangTuaList,
+            'perkembanganList'   => $perkembanganList,
+            'availableOrtuUsers' => $availableOrtuUsers
         ];
 
         return view('Modules\CivitasAkademika\Views\siswa\profil', $data);
+    }
+
+    public function buatDanTautkanOrangTua()
+    {
+        $siswaId = (int) $this->request->getPost('siswa_id');
+        $siswa = $this->siswaModel->find($siswaId);
+        if (!$siswa) {
+            return redirect()->back()->with('error', 'Data siswa tidak ditemukan.');
+        }
+
+        $rules = [
+            'username' => 'required|min_length[3]|is_unique[users.username]',
+            'email'    => 'required|valid_email|is_unique[auth_identities.secret]',
+            'hubungan' => 'required|in_list[ayah,ibu,wali]',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('error', $this->validator->getErrors()[0] ?? 'Data tidak valid.');
+        }
+
+        $username = trim($this->request->getPost('username'));
+        $email    = trim($this->request->getPost('email'));
+        $hubungan = $this->request->getPost('hubungan');
+        $password = $this->request->getPost('password');
+
+        // Jika password kosong, otomatis buatkan password acak ramah baca (8 karakter)
+        if (empty($password)) {
+            $pool = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ@#';
+            $password = substr(str_shuffle(str_repeat($pool, 4)), 0, 8);
+        }
+
+        $usersProvider = auth()->getProvider();
+        $user = new \CodeIgniter\Shield\Entities\User([
+            'username' => $username,
+            'email'    => $email,
+            'password' => $password,
+        ]);
+
+        try {
+            $usersProvider->save($user);
+            $userId = $usersProvider->getInsertID();
+            \Config\Database::connect()->table('users')->where('id', $userId)->update(['initial_password' => $password]);
+            $savedUser = $usersProvider->findById($userId);
+            $savedUser->activate();
+            $savedUser->addGroup('wali_murid');
+
+            // Tautkan ke siswa
+            $orangTuaModel = new \Modules\CivitasAkademika\Models\OrangTuaSiswaModel();
+            $orangTuaModel->insert([
+                'siswa_id' => $siswaId,
+                'user_id'  => $userId,
+                'hubungan' => $hubungan
+            ]);
+
+            $accountInfo = [
+                'username'   => $username,
+                'email'      => $email,
+                'password'   => $password,
+                'hubungan'   => ucfirst($hubungan),
+                'nama_siswa' => $siswa['nama_lengkap'],
+                'no_hp_ortu' => $siswa['no_hp_ortu'] ?? '',
+                'login_url'  => base_url('login')
+            ];
+
+            return redirect()->to('civitas-akademika/siswa/profil/' . $siswaId)
+                ->with('success', 'Akun orang tua berhasil dibuat dan langsung ditautkan!')
+                ->with('new_account', $accountInfo);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Gagal membuat akun: ' . $e->getMessage());
+        }
+    }
+
+    public function tautkanOrangTua()
+    {
+        $siswaId = $this->request->getPost('siswa_id');
+        $userId = $this->request->getPost('user_id');
+        $hubungan = $this->request->getPost('hubungan') ?: 'wali';
+
+        if (!$siswaId || !$userId) {
+            return redirect()->back()->with('error', 'Pilih akun orang tua yang valid.');
+        }
+
+        $orangTuaModel = new \Modules\CivitasAkademika\Models\OrangTuaSiswaModel();
+        $existing = $orangTuaModel->where('siswa_id', $siswaId)->where('user_id', $userId)->first();
+        if ($existing) {
+            return redirect()->back()->with('warning', 'Akun orang tua ini sudah terhubung ke siswa ini.');
+        }
+
+        $orangTuaModel->insert([
+            'siswa_id' => $siswaId,
+            'user_id'  => $userId,
+            'hubungan' => $hubungan
+        ]);
+
+        return redirect()->back()->with('success', 'Akun orang tua berhasil ditautkan ke ananda.');
+    }
+
+    public function resetPasswordOrtu()
+    {
+        $siswaId = (int) $this->request->getPost('siswa_id');
+        $userId = (int) $this->request->getPost('user_id');
+        $password = $this->request->getPost('password');
+
+        $siswa = $this->siswaModel->find($siswaId);
+        if (!$siswa) {
+            return redirect()->back()->with('error', 'Data siswa tidak ditemukan.');
+        }
+
+        if (empty($password)) {
+            $pool = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ@#';
+            $password = substr(str_shuffle(str_repeat($pool, 4)), 0, 8);
+        }
+
+        if (strlen($password) < 8) {
+            return redirect()->back()->with('error', 'Password minimal 8 karakter.');
+        }
+
+        $usersProvider = auth()->getProvider();
+        $user = $usersProvider->findById($userId);
+        if (!$user) {
+            return redirect()->back()->with('error', 'Akun pengguna tidak ditemukan.');
+        }
+
+        try {
+            $user->fill(['password' => $password]);
+            $usersProvider->save($user);
+            \Config\Database::connect()->table('users')->where('id', $userId)->update(['initial_password' => $password]);
+
+            $userEmail = '';
+            $identity = $user->getEmailIdentity();
+            if ($identity) {
+                $userEmail = $identity->secret;
+            }
+
+            $orangTuaModel = new \Modules\CivitasAkademika\Models\OrangTuaSiswaModel();
+            $rel = $orangTuaModel->where('siswa_id', $siswaId)->where('user_id', $userId)->first();
+            $hubungan = $rel ? ucfirst($rel['hubungan']) : 'Orang Tua / Wali';
+
+            $accountInfo = [
+                'username'   => $user->username,
+                'email'      => $userEmail,
+                'password'   => $password,
+                'hubungan'   => $hubungan,
+                'nama_siswa' => $siswa['nama_lengkap'],
+                'no_hp_ortu' => $siswa['no_hp_ortu'] ?? '',
+                'login_url'  => base_url('login')
+            ];
+
+            return redirect()->to('civitas-akademika/siswa/profil/' . $siswaId)
+                ->with('success', 'Password akun orang tua berhasil direset!')
+                ->with('new_account', $accountInfo);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mereset password: ' . $e->getMessage());
+        }
+    }
+
+    public function hapusTautanOrangTua($id)
+    {
+        $orangTuaModel = new \Modules\CivitasAkademika\Models\OrangTuaSiswaModel();
+        $orangTuaModel->delete($id);
+        return redirect()->back()->with('success', 'Tautan akun orang tua berhasil dilepas.');
     }
 }

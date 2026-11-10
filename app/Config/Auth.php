@@ -74,12 +74,12 @@ class Auth extends ShieldAuth
      * to apply any logic you may need.
      */
     public array $redirects = [
-        'register'          => '/',
-        'login'             => '/',
+        'register'          => 'sis',
+        'login'             => 'sis',
         'logout'            => 'login',
-        'force_reset'       => '/',
-        'permission_denied' => '/',
-        'group_denied'      => '/',
+        'force_reset'       => 'sis',
+        'permission_denied' => 'sis',
+        'group_denied'      => 'sis',
     ];
 
     /**
@@ -434,7 +434,7 @@ class Auth extends ShieldAuth
      *
      * @var class-string<UserModel>
      */
-    public string $userProvider = UserModel::class;
+    public string $userProvider = \App\Models\UserModel::class;
 
     /**
      * Returns the URL that a user should be redirected
@@ -443,9 +443,31 @@ class Auth extends ShieldAuth
     public function loginRedirect(): string
     {
         $session = session();
-        $url     = $session->getTempdata('beforeLoginUrl') ?? setting('Auth.redirects')['login'];
+        $url     = $session->getTempdata('beforeLoginUrl');
 
-        return $this->getUrl($url);
+        // Jika ada URL tujuan sebelum login dan bukan halaman web profil publik ('/' atau base_url())
+        if (!empty($url) && $url !== '/' && $url !== base_url() && $url !== base_url('/')) {
+            return $this->getUrl($url);
+        }
+
+        // Pengalihan Cerdas Berdasarkan Hak Akses / Peran Akun
+        $user = auth()->user();
+        if ($user) {
+            // 1. Wali Murid / Orang Tua -> Dashboard Portal Orang Tua
+            if ($user->inGroup('wali_murid')) {
+                return $this->getUrl('wali-murid/dashboard');
+            }
+
+            // 2. Guru / Wali Kelas -> Dashboard Portal Pendidik
+            if ($user->inGroup('wali_kelas') && !$user->inGroup('superadmin', 'direksi', 'finance_manager')) {
+                return $this->getUrl('wali-kelas/dashboard');
+            }
+
+            // 3. Admin / Staf / Manajemen -> Dashboard Utama SIS
+            return $this->getUrl('sis');
+        }
+
+        return $this->getUrl('sis');
     }
 
     /**

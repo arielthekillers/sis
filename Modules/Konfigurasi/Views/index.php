@@ -147,6 +147,56 @@ Kelola profil lembaga, pejabat penandatangan, format kuitansi, integrasi WhatsAp
         } finally {
             this.isTestingSend = false;
         }
+    },
+    showXenditSecret: false,
+    isTestingXendit: false,
+    xenditConnStatus: null,
+    xenditConnMessage: '',
+    async testXenditConnection() {
+        this.isTestingXendit = true;
+        this.xenditConnStatus = null;
+        this.xenditConnMessage = '';
+
+        const form = document.getElementById('form-konfigurasi');
+        const formData = new FormData();
+        formData.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+        formData.append('secret_key', form.querySelector('[name=xendit_secret_key]').value);
+
+        try {
+            const res = await fetch('<?= base_url('konfigurasi/test-xendit-connection') ?>', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            
+            if (data.status === 'success') {
+                this.xenditConnStatus = 'connected';
+                this.xenditConnMessage = data.message;
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Koneksi Xendit Berhasil!',
+                    text: data.message,
+                    timer: 4000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            } else {
+                this.xenditConnStatus = 'error';
+                this.xenditConnMessage = data.message || 'Gagal terhubung ke Xendit API.';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Koneksi Xendit Gagal',
+                    text: this.xenditConnMessage,
+                });
+            }
+        } catch (err) {
+            this.xenditConnStatus = 'error';
+            this.xenditConnMessage = 'Terjadi kesalahan jaringan: ' + err.message;
+            Swal.fire('Error', this.xenditConnMessage, 'error');
+        } finally {
+            this.isTestingXendit = false;
+        }
     }
 }" class="space-y-6">
 
@@ -181,6 +231,13 @@ Kelola profil lembaga, pejabat penandatangan, format kuitansi, integrasi WhatsAp
                 class="flex items-center gap-2 py-3 px-4 border-b-2 text-sm transition-all whitespace-nowrap">
                 <i class="ph ph-whatsapp-logo text-lg text-emerald-500"></i>
                 <span>Integrasi WhatsApp (Wapify)</span>
+            </button>
+
+            <button type="button" @click="activeTab = 'xendit'" 
+                :class="activeTab === 'xendit' ? 'text-indigo-600 dark:text-indigo-400 border-indigo-600 dark:border-indigo-400 font-semibold' : 'text-gray-500 dark:text-slate-400 border-transparent hover:text-gray-700 dark:hover:text-slate-300 font-medium'"
+                class="flex items-center gap-2 py-3 px-4 border-b-2 text-sm transition-all whitespace-nowrap">
+                <i class="ph ph-credit-card text-lg text-indigo-500"></i>
+                <span>Pembayaran Online (Xendit)</span>
             </button>
 
             <button type="button" @click="activeTab = 'sistem'" 
@@ -785,6 +842,203 @@ Kelola profil lembaga, pejabat penandatangan, format kuitansi, integrasi WhatsAp
                             <p>1. <strong>Simpan Kontak:</strong> Imbau seluruh wali murid untuk menyimpan nomor WhatsApp resmi sekolah di buku telepon mereka.</p>
                             <p>2. <strong>Pra-Validasi:</strong> Sistem akan otomatis memvalidasi apakah nomor terdaftar di WhatsApp sebelum pengiriman pesan dimulai.</p>
                             <p>3. <strong>Jam Kerja:</strong> Selalu kirim broadcast di jam kerja resmi (08.30 – 15.30 WIB) untuk menghindari laporan spam.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB: GATEWAY PEMBAYARAN ONLINE (XENDIT)   -->
+            <!-- ========================================== -->
+            <div x-show="activeTab === 'xendit'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-8">
+                
+                <div class="border-b border-gray-100 dark:border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                                <i class="ph ph-lightning"></i> Payment Gateway Otomatis
+                            </span>
+                            <?php $isXenditOn = ($settings['xendit_enabled'] ?? '0') === '1'; ?>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold <?= $isXenditOn ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-400' ?>">
+                                <span class="w-1.5 h-1.5 rounded-full <?= $isXenditOn ? 'bg-emerald-500' : 'bg-gray-400' ?>"></span>
+                                <?= $isXenditOn ? 'Layanan Aktif' : 'Nonaktif' ?>
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Integrasi Pembayaran Xendit</h3>
+                        <p class="text-xs text-gray-500 dark:text-slate-400">Fasilitasi pembayaran SPP dan tagihan secara instan via QRIS, Virtual Account (BCA, BSI, Mandiri, BRI, BNI), dan E-Wallet.</p>
+                    </div>
+
+                    <!-- Tombol Uji Koneksi -->
+                    <button type="button" @click="testXenditConnection()" :disabled="isTestingXendit" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-500/20 flex items-center gap-2 self-start sm:self-auto disabled:opacity-50">
+                        <i x-show="!isTestingXendit" class="ph ph-plugs-connected text-base"></i>
+                        <i x-show="isTestingXendit" class="ph ph-spinner animate-spin text-base"></i>
+                        <span x-text="isTestingXendit ? 'Menguji API...' : 'Uji Koneksi Xendit'"></span>
+                    </button>
+                </div>
+
+                <!-- Alert Feedback Status Koneksi -->
+                <template x-if="xenditConnStatus">
+                    <div :class="xenditConnStatus === 'connected' ? 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-300' : 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950/30 dark:border-rose-800 dark:text-rose-300'" class="p-4 rounded-xl border text-xs flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i :class="xenditConnStatus === 'connected' ? 'ph-check-circle text-emerald-600' : 'ph-x-circle text-rose-600'" class="ph text-lg"></i>
+                            <span x-text="xenditConnMessage" class="font-medium"></span>
+                        </div>
+                        <button type="button" @click="xenditConnStatus = null" class="opacity-70 hover:opacity-100">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+                </template>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Kolom Kiri: Kredensial API Xendit -->
+                    <div class="space-y-5">
+                        <h4 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <i class="ph ph-key text-indigo-500"></i>
+                            <span>Kredensial API & Mode</span>
+                        </h4>
+
+                        <!-- Toggle Aktifkan Layanan -->
+                        <div class="p-4 bg-gray-50 dark:bg-slate-700/40 rounded-xl border border-gray-100 dark:border-slate-700 flex items-center justify-between">
+                            <div>
+                                <label class="text-xs font-bold text-gray-900 dark:text-white block">Aktifkan Pembayaran Xendit</label>
+                                <p class="text-[11px] text-gray-500 dark:text-slate-400">Izinkan orang tua membayar tagihan online di portal wali murid.</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="hidden" name="xendit_enabled" value="0">
+                                <input type="checkbox" name="xendit_enabled" value="1" <?= ($settings['xendit_enabled'] ?? '0') === '1' ? 'checked' : '' ?> class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+
+                        <!-- Mode Lingkungan (Sandbox vs Production) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
+                                Mode Lingkungan Xendit
+                            </label>
+                            <select name="xendit_mode" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-xs font-semibold text-gray-900 dark:text-white focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all">
+                                <option value="sandbox" <?= ($settings['xendit_mode'] ?? 'sandbox') === 'sandbox' ? 'selected' : '' ?>>🧪 Sandbox (Uji Coba / Testing - Tanpa Uang Nyata)</option>
+                                <option value="production" <?= ($settings['xendit_mode'] ?? '') === 'production' ? 'selected' : '' ?>>🚀 Production (Mode Nyata / Live Transaksi)</option>
+                            </select>
+                            <p class="text-[11px] text-gray-400 mt-1">Gunakan Sandbox untuk memastikan alur checkout berhasil sebelum mengaktifkan Production.</p>
+                        </div>
+
+                        <!-- Secret API Key -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="text-xs font-semibold text-gray-700 dark:text-slate-300">
+                                    Secret API Key <span class="text-rose-500">*</span>
+                                </label>
+                                <span class="text-[10px] text-gray-400 font-mono">xnd_development_... / xnd_production_...</span>
+                            </div>
+                            <div class="relative">
+                                <input 
+                                    :type="showXenditSecret ? 'text' : 'password'" 
+                                    name="xendit_secret_key" 
+                                    value="<?= esc($settings['xendit_secret_key'] ?? '') ?>" 
+                                    placeholder="Tempel Secret Key Xendit Anda di sini"
+                                    class="w-full pl-4 pr-10 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-xs font-mono text-gray-900 dark:text-white focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                                >
+                                <button type="button" @click="showXenditSecret = !showXenditSecret" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white p-1">
+                                    <i :class="showXenditSecret ? 'ph ph-eye-slash' : 'ph ph-eye'" class="text-base"></i>
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-gray-400 mt-1">Dapatkan dari menu <strong>Settings > API Keys > Secret Key</strong> di Dashboard Xendit.</p>
+                        </div>
+
+                        <!-- Public API Key -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
+                                Public API Key (Opsional)
+                            </label>
+                            <input 
+                                type="text" 
+                                name="xendit_public_key" 
+                                value="<?= esc($settings['xendit_public_key'] ?? '') ?>" 
+                                placeholder="xnd_public_development_..."
+                                class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-xs font-mono text-gray-900 dark:text-white focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                            >
+                        </div>
+
+                        <!-- Durasi Masa Berlaku Invoice -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
+                                Masa Berlaku Tagihan / Invoice (Detik)
+                            </label>
+                            <div class="relative">
+                                <input 
+                                    type="number" 
+                                    name="xendit_invoice_duration" 
+                                    value="<?= esc($settings['xendit_invoice_duration'] ?? '86400') ?>" 
+                                    class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-xs font-mono text-gray-900 dark:text-white focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                                >
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-medium">Detik (86400 = 24 Jam)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kolom Kanan: Webhook Callback & Panduan -->
+                    <div class="space-y-5">
+                        <h4 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <i class="ph ph-webhooks-logo text-emerald-500"></i>
+                            <span>Webhook Verifikasi Otomatis</span>
+                        </h4>
+
+                        <!-- Webhook Verification Token -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1.5">
+                                Webhook Verification Token
+                            </label>
+                            <input 
+                                type="text" 
+                                name="xendit_webhook_token" 
+                                value="<?= esc($settings['xendit_webhook_token'] ?? '') ?>" 
+                                placeholder="Verification token dari dashboard Xendit"
+                                class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-xs font-mono text-gray-900 dark:text-white focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+                            >
+                            <p class="text-[11px] text-gray-400 mt-1">Ditemukan di Dashboard Xendit menu <strong>Settings > Webhooks > Webhook Verification Token</strong>.</p>
+                        </div>
+
+                        <!-- URL Callback Webhook (Copyable) -->
+                        <div class="p-4 bg-indigo-50/50 dark:bg-slate-700/30 rounded-xl border border-indigo-100 dark:border-slate-700 space-y-2">
+                            <label class="text-xs font-bold text-gray-800 dark:text-slate-200 block">
+                                URL Webhook Callback Sistem:
+                            </label>
+                            <?php $webhookUrl = base_url('api/xendit/webhook'); ?>
+                            <div class="flex items-center gap-2">
+                                <input 
+                                    type="text" 
+                                    readonly 
+                                    id="xenditWebhookUrl" 
+                                    value="<?= esc($webhookUrl) ?>" 
+                                    class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg text-xs font-mono text-indigo-700 dark:text-indigo-300 select-all"
+                                >
+                                <button 
+                                    type="button" 
+                                    onclick="navigator.clipboard.writeText('<?= esc($webhookUrl) ?>'); Swal.fire({toast:true, position:'top-end', icon:'success', title:'URL Webhook Disalin!', showConfirmButton:false, timer:2000});" 
+                                    class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-colors shrink-0 flex items-center gap-1.5 shadow-sm"
+                                >
+                                    <i class="ph ph-copy text-sm"></i>
+                                    <span>Salin</span>
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-gray-500 dark:text-slate-400 leading-relaxed">
+                                Masukkan URL di atas pada Dashboard Xendit di menu <strong>Settings &gt; Webhooks &gt; Invoices (Invoice Paid)</strong> agar setiap pembayaran orang tua otomatis terverifikasi lunas tanpa manual input.
+                            </p>
+                        </div>
+
+                        <!-- Daftar Saluran Pembayaran Didukung -->
+                        <div class="p-4 bg-gray-50 dark:bg-slate-700/40 rounded-xl border border-gray-100 dark:border-slate-700 text-xs space-y-2">
+                            <span class="font-bold text-gray-800 dark:text-slate-200 block">Metode Pembayaran yang Didukung Xendit:</span>
+                            <div class="flex flex-wrap gap-1.5 pt-1">
+                                <span class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 font-semibold text-[11px] text-rose-600">QRIS (GoPay, OVO, Dana, BCA, dll)</span>
+                                <span class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 font-semibold text-[11px] text-blue-600">BCA Virtual Account</span>
+                                <span class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 font-semibold text-[11px] text-emerald-600">BSI Virtual Account</span>
+                                <span class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 font-semibold text-[11px] text-amber-600">Mandiri Virtual Account</span>
+                                <span class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 font-semibold text-[11px] text-sky-600">BRI & BNI VA</span>
+                                <span class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 font-semibold text-[11px] text-purple-600">ShopeePay / OVO / Dana</span>
+                                <span class="px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 font-semibold text-[11px] text-teal-600">Alfamart / Indomaret</span>
+                            </div>
                         </div>
                     </div>
                 </div>

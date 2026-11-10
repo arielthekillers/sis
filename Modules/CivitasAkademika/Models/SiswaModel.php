@@ -15,7 +15,7 @@ class SiswaModel extends Model
     protected $allowedFields    = [
         'nis', 'nisn', 'nama_lengkap', 'nama_panggilan', 'jenis_kelamin',
         'tempat_lahir', 'tanggal_lahir', 'agama', 'alamat', 
-        'nama_ayah', 'nama_ibu', 'no_hp_ortu', 'foto', 'status_siswa', 'is_active'
+        'nama_ayah', 'nama_ibu', 'no_hp_ortu', 'foto', 'status_siswa', 'program', 'is_active'
     ];
 
     // Dates

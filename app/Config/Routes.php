@@ -51,12 +51,21 @@ $routes->group('civitas-akademika', ['namespace' => 'Modules\CivitasAkademika\Co
     $routes->get('guru-staf', 'GuruStaf::index');
     $routes->post('guru-staf/save', 'GuruStaf::save');
     $routes->get('guru-staf/delete/(:num)', 'GuruStaf::delete/$1');
+    $routes->get('guru-staf/profil/(:num)', 'GuruStaf::profil/$1');
+    $routes->post('guru-staf/buat-tautkan-user', 'GuruStaf::buatDanTautkanUser');
+    $routes->post('guru-staf/tautkan-user', 'GuruStaf::tautkanUser');
+    $routes->post('guru-staf/reset-password', 'GuruStaf::resetPassword');
+    $routes->get('guru-staf/hapus-tautan-user/(:num)', 'GuruStaf::hapusTautanUser/$1');
     
     // Siswa
     $routes->get('siswa', 'Siswa::index');
     $routes->post('siswa/save', 'Siswa::save');
     $routes->get('siswa/delete/(:num)', 'Siswa::delete/$1');
     $routes->get('siswa/profil/(:num)', 'Siswa::profil/$1');
+    $routes->post('siswa/buat-tautkan-orang-tua', 'Siswa::buatDanTautkanOrangTua');
+    $routes->post('siswa/tautkan-orang-tua', 'Siswa::tautkanOrangTua');
+    $routes->post('siswa/reset-password-ortu', 'Siswa::resetPasswordOrtu');
+    $routes->get('siswa/hapus-tautan-orang-tua/(:num)', 'Siswa::hapusTautanOrangTua/$1');
 });
 
 // --------------------------------------------------------------------
@@ -141,6 +150,55 @@ $routes->group('konfigurasi', ['namespace' => 'Modules\Konfigurasi\Controllers',
     $routes->post('save', 'Konfigurasi::save');
     $routes->post('test-wapify-connection', 'Konfigurasi::testWapifyConnection');
     $routes->post('test-wapify-send', 'Konfigurasi::testWapifySend');
+    $routes->post('test-xendit-connection', 'Konfigurasi::testXenditConnection');
 });
+
+// --------------------------------------------------------------------
+// Wali Kelas Module (Portal Pendidik & Guru)
+// --------------------------------------------------------------------
+$routes->group('wali-kelas', ['namespace' => 'Modules\WaliKelas\Controllers', 'filter' => 'session'], static function ($routes) {
+    $routes->get('/', 'WaliKelas::index');
+    $routes->get('dashboard', 'WaliKelas::dashboard');
+    $routes->get('kelas/(:num)', 'WaliKelas::kelas/$1');
+    
+    // Murid Binaan
+    $routes->get('murid', 'WaliKelas::daftarMurid');
+    $routes->get('murid/profil/(:num)', 'WaliKelas::profilMurid/$1');
+    $routes->post('murid/update-kontak', 'WaliKelas::updateKontakMurid');
+    
+    // Detail & Input Jurnal Perkembangan Siswa Tertentu
+    $routes->get('siswa/(:num)/(:num)', 'WaliKelas::siswa/$1/$2');
+    
+    // Manajemen Jurnal Perkembangan Kelas
+    $routes->get('perkembangan', 'WaliKelas::perkembangan');
+    $routes->post('save-perkembangan', 'WaliKelas::savePerkembangan');
+    $routes->get('delete-perkembangan/(:num)', 'WaliKelas::deletePerkembangan/$1');
+    
+    // Profil Guru & Pengaturan Akun
+    $routes->get('profil', 'WaliKelas::profil');
+    $routes->post('update-profil', 'WaliKelas::updateProfil');
+    $routes->post('update-password', 'WaliKelas::updatePassword');
+});
+
+// --------------------------------------------------------------------
+// Wali Murid Module (Portal Orang Tua)
+// --------------------------------------------------------------------
+$routes->group('wali-murid', ['namespace' => 'Modules\WaliMurid\Controllers', 'filter' => 'session'], static function ($routes) {
+    $routes->get('/', 'WaliMurid::index');
+    $routes->get('dashboard', 'WaliMurid::dashboard');
+    $routes->get('perkembangan', 'WaliMurid::perkembangan');
+    $routes->get('keuangan', 'WaliMurid::keuangan');
+    $routes->post('bayar-xendit', 'WaliMurid::bayarXendit');
+    $routes->get('pembayaran-sukses', 'WaliMurid::pembayaranSukses');
+    $routes->get('pembayaran-batal', 'WaliMurid::pembayaranBatal');
+    $routes->get('cctv', 'WaliMurid::cctv');
+    $routes->get('profil', 'WaliMurid::profil');
+    $routes->post('update-password', 'WaliMurid::updatePassword');
+});
+
+// --------------------------------------------------------------------
+// Public Webhook API (Exempted from CSRF & Session Auth)
+// --------------------------------------------------------------------
+$routes->post('api/xendit/webhook', '\Modules\Keuangan\Controllers\XenditWebhook::index');
 
 service('auth')->routes($routes);

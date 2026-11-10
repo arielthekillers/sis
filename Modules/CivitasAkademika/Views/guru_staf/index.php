@@ -23,7 +23,7 @@ Manajemen data pendidik dan tenaga kependidikan di sekolah.
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div x-data="{ modalOpen: false, editMode: false, form: {id: '', nip: '', nama_lengkap: '', nama_panggilan: '', sapaan: 'Miss', jenis_kelamin: 'P', no_hp: '', jabatan: 'Guru Kelas', tahun_masuk: '', is_active: true} }" @open-modal.window="modalOpen = true; editMode = false; form = {id: '', nip: '', nama_lengkap: '', nama_panggilan: '', sapaan: 'Miss', jenis_kelamin: 'P', no_hp: '', jabatan: 'Guru Kelas', tahun_masuk: '', is_active: true};" @edit-modal.window="modalOpen = true; editMode = true; form = $event.detail; form.is_active = (form.is_active == 1 || form.is_active == true);">
+<div x-data="{ modalOpen: false, editMode: false, form: {id: '', user_id: '', nip: '', nama_lengkap: '', nama_panggilan: '', sapaan: 'Miss', jenis_kelamin: 'P', no_hp: '', jabatan: 'Guru Kelas', tahun_masuk: '', is_active: true} }" @open-modal.window="modalOpen = true; editMode = false; form = {id: '', user_id: '', nip: '', nama_lengkap: '', nama_panggilan: '', sapaan: 'Miss', jenis_kelamin: 'P', no_hp: '', jabatan: 'Guru Kelas', tahun_masuk: '', is_active: true};" @edit-modal.window="modalOpen = true; editMode = true; form = $event.detail; form.is_active = (form.is_active == 1 || form.is_active == true);">
     
     <!-- Tabel Data -->
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
@@ -59,7 +59,14 @@ Manajemen data pendidik dan tenaga kependidikan di sekolah.
                                 <?php endif; ?>
                                 <div>
                                     <div class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                        <?= esc($g['sapaan']) ?> <?= esc($g['nama_lengkap']) ?>
+                                        <a href="<?= base_url('civitas-akademika/guru-staf/profil/' . $g['id']) ?>" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                            <?= esc($g['sapaan']) ?> <?= esc($g['nama_lengkap']) ?>
+                                        </a>
+                                        <?php if(!empty($g['user_id'])): ?>
+                                            <span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" title="Akun login aktif">
+                                                <i class="ph ph-check-circle"></i> Akun Ada
+                                            </span>
+                                        <?php endif; ?>
                                         <?php if(!$g['is_active']): ?>
                                             <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400">Nonaktif</span>
                                         <?php endif; ?>
@@ -80,8 +87,11 @@ Manajemen data pendidik dan tenaga kependidikan di sekolah.
                             <span class="text-sm text-gray-700 dark:text-slate-300 font-mono"><?= esc($g['nip'] ?: '-') ?></span>
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button @click="$dispatch('edit-modal', {id: '<?= $g['id'] ?>', nip: '<?= esc($g['nip']) ?>', nama_lengkap: '<?= esc($g['nama_lengkap']) ?>', nama_panggilan: '<?= esc($g['nama_panggilan']) ?>', sapaan: '<?= esc($g['sapaan']) ?>', jenis_kelamin: '<?= esc($g['jenis_kelamin']) ?>', no_hp: '<?= esc($g['no_hp']) ?>', jabatan: '<?= esc($g['jabatan'] ?? 'Guru Kelas') ?>', tahun_masuk: '<?= esc($g['tahun_masuk']) ?>', is_active: '<?= esc($g['is_active']) ?>'})" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors" title="Edit">
+                            <div class="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <a href="<?= base_url('civitas-akademika/guru-staf/profil/' . $g['id']) ?>" class="p-1.5 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-colors" title="Lihat Profil & Kelola Akun">
+                                    <i class="ph ph-user-circle text-lg"></i>
+                                </a>
+                                <button @click="$dispatch('edit-modal', {id: '<?= $g['id'] ?>', user_id: '<?= esc($g['user_id'] ?? '') ?>', nip: '<?= esc($g['nip']) ?>', nama_lengkap: '<?= esc($g['nama_lengkap']) ?>', nama_panggilan: '<?= esc($g['nama_panggilan']) ?>', sapaan: '<?= esc($g['sapaan']) ?>', jenis_kelamin: '<?= esc($g['jenis_kelamin']) ?>', no_hp: '<?= esc($g['no_hp']) ?>', jabatan: '<?= esc($g['jabatan'] ?? 'Guru Kelas') ?>', tahun_masuk: '<?= esc($g['tahun_masuk']) ?>', is_active: '<?= esc($g['is_active']) ?>'})" class="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors" title="Edit Data">
                                     <i class="ph ph-pencil-simple text-lg"></i>
                                 </button>
                                 <button onclick="confirmAction('Hapus Data?', 'Data yang dihapus tidak bisa dikembalikan!', 'Ya, Hapus', () => { window.location.href='<?= base_url('civitas-akademika/guru-staf/delete/'.$g['id']) ?>' })" class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors" title="Hapus">
@@ -246,6 +256,27 @@ Manajemen data pendidik dan tenaga kependidikan di sekolah.
                                     </div>
                                 </div>
                                 
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Tautkan Akun Login (User SIS)</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <i class="ph ph-user-circle-gear text-gray-400 text-lg"></i>
+                                        </div>
+                                        <select name="user_id" x-model="form.user_id" class="block w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-gray-900 dark:text-white focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all sm:text-sm appearance-none">
+                                            <option value="">-- Belum Ditautkan --</option>
+                                            <?php if(!empty($availableUsers)): ?>
+                                                <?php foreach($availableUsers as $u): ?>
+                                                    <option value="<?= $u->id ?>"><?= esc($u->username) ?> (<?= esc($u->email) ?>)</option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </select>
+                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                            <i class="ph ph-caret-down text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <span class="text-[11px] text-gray-400 mt-1 block">Akun ini yang digunakan guru saat login ke Portal Wali Kelas.</span>
+                                </div>
+
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Foto Profil</label>
                                     <div class="mt-1 flex items-center gap-4">

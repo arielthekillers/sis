@@ -23,9 +23,9 @@ Manajemen data induk seluruh peserta didik (Master Siswa).
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div x-data="{ modalOpen: false, editMode: false, form: {id: '', nis: '', nisn: '', nama_lengkap: '', nama_panggilan: '', jenis_kelamin: 'L', tempat_lahir: '', tanggal_lahir: '', agama: '', alamat: '', nama_ayah: '', nama_ibu: '', no_hp_ortu: '', status_siswa: 'Aktif', is_active: true} }" 
-     @open-modal.window="modalOpen = true; editMode = false; form = {id: '', nis: '', nisn: '', nama_lengkap: '', nama_panggilan: '', jenis_kelamin: 'L', tempat_lahir: '', tanggal_lahir: '', agama: '', alamat: '', nama_ayah: '', nama_ibu: '', no_hp_ortu: '', status_siswa: 'Aktif', is_active: true};" 
-     @edit-modal.window="modalOpen = true; editMode = true; form = $event.detail; form.is_active = (form.is_active == 1 || form.is_active == true);">
+<div x-data="{ modalOpen: false, editMode: false, form: {id: '', nis: '', nisn: '', nama_lengkap: '', nama_panggilan: '', jenis_kelamin: 'L', tempat_lahir: '', tanggal_lahir: '', agama: '', alamat: '', nama_ayah: '', nama_ibu: '', no_hp_ortu: '', status_siswa: 'Aktif', program: 'Reguler', is_active: true} }" 
+     @open-modal.window="modalOpen = true; editMode = false; form = {id: '', nis: '', nisn: '', nama_lengkap: '', nama_panggilan: '', jenis_kelamin: 'L', tempat_lahir: '', tanggal_lahir: '', agama: '', alamat: '', nama_ayah: '', nama_ibu: '', no_hp_ortu: '', status_siswa: 'Aktif', program: 'Reguler', is_active: true};" 
+     @edit-modal.window="modalOpen = true; editMode = true; form = $event.detail; form.program = form.program || 'Reguler'; form.is_active = (form.is_active == 1 || form.is_active == true);">
     
     <!-- Tabel Data -->
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
@@ -88,6 +88,9 @@ Manajemen data induk seluruh peserta didik (Master Siswa).
                             <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium <?= $statusColor ?>">
                                 <?= esc($s['status_siswa']) ?>
                             </span>
+                            <span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold <?= ($s['program'] ?? 'Reguler') === 'Fullday' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-300' ?>">
+                                <?= esc($s['program'] ?? 'Reguler') ?>
+                            </span>
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -107,6 +110,7 @@ Manajemen data induk seluruh peserta didik (Master Siswa).
                                         'nama_ibu' => $s['nama_ibu'],
                                         'no_hp_ortu' => $s['no_hp_ortu'],
                                         'status_siswa' => $s['status_siswa'],
+                                        'program' => $s['program'] ?? 'Reguler',
                                         'is_active' => $s['is_active']
                                     ];
                                 ?>
@@ -289,6 +293,14 @@ Manajemen data induk seluruh peserta didik (Master Siswa).
                                         <option value="Lulus">Lulus</option>
                                         <option value="Pindah">Pindah / Mutasi Keluar</option>
                                         <option value="Drop Out">Drop Out / Berhenti</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Program Belajar</label>
+                                    <select name="program" x-model="form.program" class="block w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-700/50 border-transparent rounded-xl text-gray-900 dark:text-white focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all sm:text-sm">
+                                        <option value="Reguler">Reguler</option>
+                                        <option value="Fullday">Fullday (Akses Live CCTV)</option>
                                     </select>
                                 </div>
                                 

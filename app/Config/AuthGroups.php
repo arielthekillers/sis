@@ -65,6 +65,14 @@ class AuthGroups extends ShieldAuthGroups
             'title'       => 'Staff HR',
             'description' => 'Input kehadiran, data crew, dan operasional SDM.',
         ],
+        'wali_kelas' => [
+            'title'       => 'Wali Kelas / Guru',
+            'description' => 'Akses data murid di kelas binaan dan input catatan perkembangan.',
+        ],
+        'wali_murid' => [
+            'title'       => 'Wali Murid / Orang Tua',
+            'description' => 'Akses portal orang tua untuk memantau perkembangan anak dan informasi pembayaran.',
+        ],
         'user' => [
             'title'       => 'Karyawan Biasa',
             'description' => 'Pengguna standar (Karyawan biasa).',
@@ -127,6 +135,8 @@ class AuthGroups extends ShieldAuthGroups
             'hr.view',
             'hr.create',
         ],
+        'wali_kelas' => [],
+        'wali_murid' => [],
         'user' => [],
     ];
 }

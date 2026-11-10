@@ -107,4 +107,16 @@ class Konfigurasi extends BaseController
 
         return $this->response->setJSON($result);
     }
+
+    /**
+     * AJAX Test Koneksi Xendit API
+     */
+    public function testXenditConnection()
+    {
+        $secretKey = $this->request->getPost('secret_key') ?: null;
+        $xenditService = new \App\Libraries\XenditService($secretKey);
+        $result = $xenditService->checkConnection($secretKey);
+
+        return $this->response->setJSON($result);
+    }
 }
