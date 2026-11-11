@@ -31,9 +31,15 @@ Layanan pemantauan aktivitas belajar dan istirahat ananda secara langsung selama
 <?= $this->section('content') ?>
 <div class="space-y-6" x-data="{ 
     fullscreenModal: false, 
-    activeCamTitle: '', 
-    activeCamCode: '', 
+    activeCam: null, 
+    streamingCams: {},
     currentTime: '',
+    toggleStream(camId) {
+        this.streamingCams[camId] = !this.streamingCams[camId];
+    },
+    isStreaming(camId) {
+        return !!this.streamingCams[camId];
+    },
     init() {
         this.updateClock();
         setInterval(() => this.updateClock(), 1000);
@@ -120,12 +126,16 @@ Layanan pemantauan aktivitas belajar dan istirahat ananda secara langsung selama
                         <i class="ph ph-video-camera"></i>
                     </div>
                     <div>
-                        <div class="flex items-center gap-2 mb-1">
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
                                 <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                                SIARAN LANGSUNG (LIVE)
+                                SIARAN CCTV TERSEDIA
                             </span>
-                            <span class="text-xs text-slate-400">|</span>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                                <i class="ph ph-pause-circle"></i>
+                                Autoplay Nonaktif (Hemat Kuota)
+                            </span>
+                            <span class="text-xs text-slate-400 hidden sm:inline">|</span>
                             <span class="text-xs font-semibold text-slate-300" x-text="currentTime"></span>
                         </div>
                         <h2 class="text-xl md:text-2xl font-black text-white">
@@ -138,95 +148,142 @@ Layanan pemantauan aktivitas belajar dan istirahat ananda secara langsung selama
                 </div>
 
                 <div class="flex items-center gap-2 self-end md:self-auto">
-                    <span class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex items-center gap-2">
-                        <i class="ph ph-broadcast text-emerald-400"></i>
-                        <span>4 Kamera Aktif</span>
+                    <span class="px-3.5 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold border border-slate-700 flex items-center gap-2">
+                        <i class="ph ph-broadcast text-emerald-400 text-base"></i>
+                        <span><?= count($cameras) ?> Kamera Terdaftar</span>
                     </span>
                 </div>
             </div>
         </div>
 
-        <!-- Grid 4 Kamera CCTV -->
+        <!-- Grid Kamera CCTV -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <?php foreach($cameras as $cam): ?>
                 <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col group hover:shadow-md transition-all">
                     <!-- CCTV Header Bar -->
                     <div class="p-3.5 bg-gray-50 dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono font-bold px-2 py-0.5 rounded bg-gray-200 dark:bg-slate-800 text-gray-800 dark:text-slate-200 text-[11px]">
+                        <div class="flex items-center gap-2 truncate">
+                            <span class="font-mono font-bold px-2 py-0.5 rounded bg-gray-200 dark:bg-slate-800 text-gray-800 dark:text-slate-200 text-[11px] shrink-0">
                                 <?= esc($cam['code']) ?>
                             </span>
                             <span class="font-bold text-gray-900 dark:text-white truncate">
                                 <?= esc($cam['title']) ?>
                             </span>
                         </div>
-                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <?= esc($cam['status']) ?>
+                        <span 
+                            class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 transition-colors"
+                            :class="isStreaming('<?= $cam['id'] ?>') ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700'"
+                        >
+                            <span class="w-1.5 h-1.5 rounded-full" :class="isStreaming('<?= $cam['id'] ?>') ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'"></span>
+                            <span x-text="isStreaming('<?= $cam['id'] ?>') ? 'Sedang Memutar' : 'Standby (Klik Putar)'"></span>
                         </span>
                     </div>
 
-                    <!-- Video Screen (Placeholder Layar Monitor CCTV) -->
+                    <!-- Video Screen (TIDAK AUTOPLAY: Standby vs Playing State) -->
                     <div class="relative bg-slate-950 aspect-video flex flex-col items-center justify-center text-white overflow-hidden select-none">
-                        <!-- Top Stream Overlays -->
-                        <div class="absolute top-3 left-3 flex items-center gap-2 z-10">
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[10px] font-mono text-rose-400 font-bold border border-white/10">
-                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                                LIVE
-                            </span>
-                            <span class="px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[10px] font-mono text-slate-300 border border-white/10">
-                                <?= esc($cam['resolution']) ?>
-                            </span>
-                        </div>
-
-                        <div class="absolute top-3 right-3 z-10">
-                            <span class="px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[10px] font-mono text-emerald-400 font-bold border border-white/10" x-text="currentTime"></span>
-                        </div>
-
-                        <!-- Central Placeholder Content -->
-                        <div class="text-center p-6 z-10 flex flex-col items-center">
-                            <!-- Camera Icon with Pulse Radar -->
-                            <div class="relative mb-3">
-                                <div class="w-14 h-14 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-300 text-2xl shadow-inner">
-                                    <i class="ph ph-video-camera"></i>
-                                </div>
-                                <div class="absolute inset-0 rounded-2xl border border-rose-500/30 animate-ping pointer-events-none"></div>
+                        
+                        <!-- 1. MODE STANDBY (NO AUTOPLAY) -->
+                        <div x-show="!isStreaming('<?= $cam['id'] ?>')" class="w-full h-full flex flex-col items-center justify-center p-6 text-center z-10">
+                            <!-- Camera Standby Icon -->
+                            <div class="w-14 h-14 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400 text-2xl mb-2.5 shadow-inner">
+                                <i class="ph ph-video-camera"></i>
                             </div>
                             <p class="text-sm font-bold text-slate-200 tracking-wide">
                                 <?= esc($cam['title']) ?>
                             </p>
-                            <p class="text-[11px] text-slate-400 max-w-xs mt-1">
-                                Aliran video CCTV kelas sedang berlangsung. Feed koneksi video internal aktif.
-                            </p>
-                            <span class="mt-2 text-[10px] font-mono uppercase tracking-wider text-slate-500 bg-slate-900/80 px-2 py-0.5 rounded border border-slate-800">
-                                [ Placeholder Video Stream ]
+                            <div class="flex items-center gap-2 mt-1 font-mono text-[11px] text-slate-400">
+                                <i class="ph ph-globe text-blue-400"></i>
+                                <span>IP: <?= esc($cam['ip_public']) ?><?= $cam['port'] ? ':' . esc($cam['port']) : '' ?></span>
+                            </div>
+
+                            <!-- Tombol Manual Play (No Autoplay) -->
+                            <button 
+                                type="button" 
+                                @click="toggleStream('<?= $cam['id'] ?>')" 
+                                class="mt-3.5 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition-all"
+                            >
+                                <i class="ph ph-play-circle text-lg"></i>
+                                <span>Putar Siaran Kamera</span>
+                            </button>
+                            <span class="text-[10px] text-slate-500 mt-2 flex items-center gap-1">
+                                <i class="ph ph-leaf text-emerald-400"></i>
+                                <span>Autoplay dinonaktifkan demi menghemat kuota internet Anda</span>
                             </span>
                         </div>
 
-                        <!-- Subtle CRT / Scanline Grid Effect -->
-                        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent pointer-events-none"></div>
-
-                        <!-- Bottom Stream Controls Bar -->
-                        <div class="absolute bottom-0 inset-x-0 p-2.5 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-center justify-between text-xs z-10">
-                            <div class="flex items-center gap-2">
-                                <button type="button" class="p-1 rounded text-slate-300 hover:text-white hover:bg-white/10 transition-colors" title="Mute/Unmute Audio">
-                                    <i class="ph ph-speaker-high text-base"></i>
-                                </button>
-                                <span class="text-[10px] font-mono text-slate-400"><?= esc($cam['area']) ?></span>
+                        <!-- 2. MODE PLAYING (Setelah tombol Putar ditekan) -->
+                        <div x-show="isStreaming('<?= $cam['id'] ?>')" class="w-full h-full flex flex-col items-center justify-center relative z-10" x-cloak>
+                            <!-- Top Stream Overlays -->
+                            <div class="absolute top-3 left-3 flex items-center gap-2 z-10">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[10px] font-mono text-rose-400 font-bold border border-white/10">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                                    LIVE FEED
+                                </span>
+                                <span class="px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[10px] font-mono text-slate-300 border border-white/10">
+                                    <?= esc($cam['resolution']) ?>
+                                </span>
                             </div>
 
-                            <div class="flex items-center gap-2">
-                                <button 
-                                    type="button" 
-                                    @click="fullscreenModal = true; activeCamTitle = '<?= esc(addslashes($cam['title'])) ?>'; activeCamCode = '<?= esc($cam['code']) ?>';" 
-                                    class="p-1.5 rounded bg-white/10 hover:bg-white/20 text-white text-xs transition-colors flex items-center gap-1 shadow-sm"
-                                    title="Tampilan Penuh"
-                                >
-                                    <i class="ph ph-corners-out text-sm"></i>
-                                    <span class="text-[10px] font-semibold hidden sm:inline">Perbesar</span>
-                                </button>
+                            <div class="absolute top-3 right-3 z-10">
+                                <span class="px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[10px] font-mono text-emerald-400 font-bold border border-white/10" x-text="currentTime"></span>
+                            </div>
+
+                            <?php if (!empty($cam['stream_url']) && $cam['tipe_stream'] === 'embed'): ?>
+                                <template x-if="isStreaming('<?= $cam['id'] ?>')">
+                                    <iframe src="<?= esc($cam['stream_url']) ?>" class="w-full h-full border-0" allowfullscreen></iframe>
+                                </template>
+                            <?php else: ?>
+                                <!-- Central Physical CCTV Stream Placeholder -->
+                                <div class="text-center p-6 z-10 flex flex-col items-center">
+                                    <div class="relative mb-3">
+                                        <div class="w-14 h-14 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-emerald-400 text-2xl shadow-inner">
+                                            <i class="ph ph-broadcast"></i>
+                                        </div>
+                                        <div class="absolute inset-0 rounded-2xl border border-emerald-500/30 animate-ping pointer-events-none"></div>
+                                    </div>
+                                    <p class="text-sm font-bold text-slate-200 tracking-wide">
+                                        <?= esc($cam['title']) ?>
+                                    </p>
+                                    <p class="text-[11px] text-slate-400 max-w-xs mt-1">
+                                        Aliran siaran CCTV terhubung ke IP Public <strong><?= esc($cam['ip_public']) ?><?= $cam['port'] ? ':' . esc($cam['port']) : '' ?></strong>. Feed aktif dari <?= esc($cam['area']) ?>.
+                                    </p>
+                                    <span class="mt-2 text-[10px] font-mono uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2.5 py-0.5 rounded border border-emerald-800/50">
+                                        [ Live Stream Aktif ]
+                                    </span>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Bottom Stream Controls Bar -->
+                            <div class="absolute bottom-0 inset-x-0 p-2.5 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-center justify-between text-xs z-10">
+                                <div class="flex items-center gap-2">
+                                    <button 
+                                        type="button" 
+                                        @click="toggleStream('<?= $cam['id'] ?>')" 
+                                        class="px-2.5 py-1 rounded bg-rose-600/80 hover:bg-rose-600 text-white text-[11px] font-semibold transition-all flex items-center gap-1 shadow-sm"
+                                        title="Hentikan siaran"
+                                    >
+                                        <i class="ph ph-stop text-sm"></i>
+                                        <span>Hentikan</span>
+                                    </button>
+                                    <span class="text-[10px] font-mono text-slate-400"><?= esc($cam['area']) ?></span>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <button 
+                                        type="button" 
+                                        @click="fullscreenModal = true; activeCam = <?= htmlspecialchars(json_encode($cam), ENT_QUOTES, 'UTF-8') ?>;" 
+                                        class="p-1.5 rounded bg-white/10 hover:bg-white/20 text-white text-xs transition-colors flex items-center gap-1 shadow-sm"
+                                        title="Tampilan Penuh"
+                                    >
+                                        <i class="ph ph-corners-out text-sm"></i>
+                                        <span class="text-[10px] font-semibold hidden sm:inline">Perbesar</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+
+                        <!-- Scanline Overlay Effect -->
+                        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent pointer-events-none"></div>
                     </div>
 
                     <!-- CCTV Footer Info -->
@@ -238,7 +295,7 @@ Layanan pemantauan aktivitas belajar dan istirahat ananda secara langsung selama
                             <span class="flex items-center gap-1">
                                 <i class="ph ph-clock"></i> Jam Operasional: <?= esc($cam['schedule']) ?>
                             </span>
-                            <span class="font-medium text-slate-500">Kualitas: Full HD</span>
+                            <span class="font-medium text-slate-500">Resolusi: <?= esc($cam['resolution']) ?></span>
                         </div>
                     </div>
                 </div>
@@ -254,7 +311,7 @@ Layanan pemantauan aktivitas belajar dan istirahat ananda secara langsung selama
                 <div class="text-xs space-y-1">
                     <h4 class="font-bold text-gray-900 dark:text-white text-sm">Tata Tertib & Privasi Pemantauan CCTV</h4>
                     <p class="text-gray-600 dark:text-slate-300 leading-relaxed">
-                        Fasilitas live CCTV disediakan semata-mata untuk ketenangan bunda & ayah dalam memantau kenyamanan dan keamanan ananda. 
+                        Fasilitas live CCTV disediakan semata-mata untuk ketenangan bunda & ayah dalam memantau kenyamanan dan keamanan ananda selama di sekolah. 
                         Dilarang merekam, menyebarluaskan, atau mempublikasikan tangkapan layar video CCTV ke media sosial demi menjaga privasi ananda dan peserta didik lainnya.
                     </p>
                 </div>
@@ -274,8 +331,8 @@ Layanan pemantauan aktivitas belajar dan istirahat ananda secara langsung selama
             >
                 <div class="p-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-white">
                     <div class="flex items-center gap-3">
-                        <span class="font-mono font-bold px-2.5 py-1 rounded bg-rose-600 text-white text-xs" x-text="activeCamCode"></span>
-                        <h4 class="text-sm font-bold text-white truncate" x-text="activeCamTitle"></h4>
+                        <span class="font-mono font-bold px-2.5 py-1 rounded bg-rose-600 text-white text-xs" x-text="activeCam?.code"></span>
+                        <h4 class="text-sm font-bold text-white truncate" x-text="activeCam?.title"></h4>
                         <span class="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-semibold ml-2">
                             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                             Live 1080p
@@ -290,8 +347,12 @@ Layanan pemantauan aktivitas belajar dan istirahat ananda secara langsung selama
                     <div class="w-20 h-20 rounded-3xl bg-slate-800 border border-slate-700 flex items-center justify-center text-4xl text-rose-500 mb-4 shadow-xl">
                         <i class="ph ph-video-camera"></i>
                     </div>
-                    <p class="text-lg font-bold text-white" x-text="activeCamTitle"></p>
-                    <p class="text-xs text-slate-400 max-w-md text-center mt-1">
+                    <p class="text-lg font-bold text-white" x-text="activeCam?.title"></p>
+                    <div class="flex items-center gap-2 mt-2 font-mono text-xs text-slate-400">
+                        <span>IP Public:</span>
+                        <span class="text-blue-300 font-bold" x-text="(activeCam?.ip_public || '103.148.12.34') + ':' + (activeCam?.port || '554')"></span>
+                    </div>
+                    <p class="text-xs text-slate-400 max-w-md text-center mt-2">
                         Siaran langsung terpantau jernih. Area kegiatan belajar dan pendampingan ananda program Fullday.
                     </p>
                     <span class="mt-4 text-xs font-mono text-emerald-400 bg-black/50 px-3 py-1 rounded-full border border-emerald-500/30" x-text="'Waktu Server: ' + currentTime"></span>

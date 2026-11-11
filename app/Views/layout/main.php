@@ -213,6 +213,7 @@
                         <div class="pl-8 pr-2 py-0.5 mt-0.5 space-y-0.5 border-l border-gray-200 dark:border-slate-700 ml-4">
                             <a href="<?= base_url('master-data/tahun-ajaran') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= uri_string() == 'master-data/tahun-ajaran' ? 'bg-indigo-50 text-indigo-700 font-semibold dark:bg-indigo-500/10 dark:text-indigo-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">Tahun Ajaran</a>
                             <a href="<?= base_url('master-data/mata-pelajaran') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= uri_string() == 'master-data/mata-pelajaran' ? 'bg-indigo-50 text-indigo-700 font-semibold dark:bg-indigo-500/10 dark:text-indigo-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">Mata Pelajaran</a>
+                            <a href="<?= base_url('master-data/cctv') ?>" class="block px-2 py-1.5 rounded text-xs transition-colors <?= strpos(uri_string(), 'master-data/cctv') === 0 ? 'bg-indigo-50 text-indigo-700 font-semibold dark:bg-indigo-500/10 dark:text-indigo-400' : 'text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white' ?>">Kamera CCTV</a>
                         </div>
                     </div>
                 </div>

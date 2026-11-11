@@ -347,50 +347,33 @@ class WaliMurid extends BaseController
 
         $isFullday = ($prep['activeAnak']['program'] ?? 'Reguler') === 'Fullday' || $prep['hasFulldayChild'];
 
-        // Daftar kamera monitoring yang disediakan sekolah untuk siswa Fullday
+        // Ambil daftar kamera aktif dari database (dikelola oleh Admin di Master Data CCTV)
+        $cctvModel = new \Modules\MasterData\Models\CctvModel();
+        $dbCameras = $cctvModel->where('status', 'aktif')
+            ->whereIn('target_program', ['Fullday', 'Semua'])
+            ->orderBy('urutan', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->findAll();
+
+        $cameras = [];
         $namaKelas = $prep['activeAnak']['kelas']['nama_kelas'] ?? 'Kinder';
-        $cameras = [
-            [
-                'id'          => 'cam-01',
-                'code'        => 'CAM-01',
-                'title'       => 'Ruang Kelas Utama (' . $namaKelas . ')',
-                'area'        => 'Indoor',
-                'description' => 'Area kegiatan belajar, bernyanyi, dan aktivitas motorik halus bersama bunda guru.',
-                'status'      => 'Online',
-                'resolution'  => '1080p Full HD',
-                'schedule'    => '07.30 - 16.30 WIB',
-            ],
-            [
-                'id'          => 'cam-02',
-                'code'        => 'CAM-02',
-                'title'       => 'Playground & Area Bermain',
-                'area'        => 'Outdoor / Semi-Indoor',
-                'description' => 'Area bermain bebas, perosotan, ayunan, dan olahraga pagi ananda.',
-                'status'      => 'Online',
-                'resolution'  => '1080p Full HD',
-                'schedule'    => '08.00 - 15.30 WIB',
-            ],
-            [
-                'id'          => 'cam-03',
-                'code'        => 'CAM-03',
-                'title'       => 'Dining Hall & Ruang Makan',
-                'area'        => 'Indoor',
-                'description' => 'Area makan siang bersama dan waktu snack sore program Fullday.',
-                'status'      => 'Online',
-                'resolution'  => '1080p Full HD',
-                'schedule'    => '11.00 - 15.30 WIB',
-            ],
-            [
-                'id'          => 'cam-04',
-                'code'        => 'CAM-04',
-                'title'       => 'Nap Room (Ruang Tidur Siang)',
-                'area'        => 'Indoor Sleep Area',
-                'description' => 'Area istirahat tidur siang ananda yang nyaman dan tenang dengan pengawasan guru piket.',
-                'status'      => 'Online',
-                'resolution'  => '1080p Full HD',
-                'schedule'    => '12.30 - 14.30 WIB',
-            ],
-        ];
+
+        foreach ($dbCameras as $cam) {
+            $cameras[] = [
+                'id'          => 'cam-' . $cam['id'],
+                'code'        => $cam['kode_kamera'],
+                'title'       => str_replace(['Kinder', 'Kelas'], [$namaKelas, 'Kelas ' . $namaKelas], $cam['nama_kamera']),
+                'area'        => $cam['lokasi'] ?: 'Area Sekolah',
+                'ip_public'   => $cam['ip_public'] ?: '103.148.12.34',
+                'port'        => $cam['port'] ?: 554,
+                'stream_url'  => $cam['stream_url'] ?: '',
+                'tipe_stream' => $cam['tipe_stream'] ?: 'placeholder',
+                'description' => $cam['keterangan'] ?: 'Pemantauan aktivitas dan kenyamanan ananda di area sekolah.',
+                'status'      => 'Siaran Siap',
+                'resolution'  => $cam['resolusi'] ?: '1080p FHD',
+                'schedule'    => $cam['jadwal_operasional'] ?: '07.30 - 16.30 WIB',
+            ];
+        }
 
         $data = array_merge($prep, [
             'title'     => 'CCTV Live Streaming - Program Fullday',

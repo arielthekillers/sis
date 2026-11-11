@@ -41,6 +41,13 @@ $routes->group('master-data', ['namespace' => 'Modules\MasterData\Controllers', 
     $routes->get('mata-pelajaran', 'MataPelajaran::index');
     $routes->post('mata-pelajaran/save', 'MataPelajaran::save');
     $routes->get('mata-pelajaran/delete/(:num)', 'MataPelajaran::delete/$1');
+
+    // Kamera CCTV
+    $routes->get('cctv', 'Cctv::index');
+    $routes->post('cctv/store', 'Cctv::store');
+    $routes->post('cctv/update/(:num)', 'Cctv::update/$1');
+    $routes->get('cctv/delete/(:num)', 'Cctv::delete/$1');
+    $routes->get('cctv/toggle/(:num)', 'Cctv::toggleStatus/$1');
 });
 
 // --------------------------------------------------------------------
