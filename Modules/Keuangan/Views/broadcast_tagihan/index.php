@@ -320,7 +320,7 @@ Kirim pemberitahuan tagihan bulanan secara otomatis dengan proteksi jeda acak (A
 
         const btn = document.getElementById('btn-waweb-' + sId);
         const originalContent = btn ? btn.innerHTML : '';
-        if (btn) btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i>';
+        if (btn) btn.innerHTML = '<i class=\'ph ph-spinner animate-spin\'></i>';
 
         try {
             const res = await fetch(`<?= base_url('keuangan/broadcast-tagihan/get-message') ?>?siswa_id=${sId}&bulan=${this.bulanAktif}&tahun=${this.tahunAktif}`);
