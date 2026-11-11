@@ -131,10 +131,11 @@ Kelola informasi akun login Anda, perbarui alamat email, dan ganti kata sandi.
                         type="submit" 
                         :disabled="isSubmittingAkun"
                         class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/25 transition-all flex items-center gap-2 disabled:opacity-50"
+                        style="background-color: #2563eb; color: #ffffff;"
                     >
-                        <i x-show="!isSubmittingAkun" class="ph ph-floppy-disk text-base"></i>
-                        <i x-show="isSubmittingAkun" class="ph ph-spinner animate-spin text-base"></i>
-                        <span x-text="isSubmittingAkun ? 'Menyimpan...' : 'Simpan Perubahan Akun'"></span>
+                        <i x-show="!isSubmittingAkun" class="ph ph-floppy-disk text-base text-white"></i>
+                        <i x-show="isSubmittingAkun" class="ph ph-spinner animate-spin text-base text-white" style="display: none;"></i>
+                        <span x-text="isSubmittingAkun ? 'Menyimpan...' : 'Simpan Perubahan Akun'">Simpan Perubahan Akun</span>
                     </button>
                 </div>
             </form>
@@ -227,11 +228,12 @@ Kelola informasi akun login Anda, perbarui alamat email, dan ganti kata sandi.
                     <button 
                         type="submit" 
                         :disabled="isSubmittingPass"
-                        class="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md shadow-amber-500/25 transition-all flex items-center gap-2 disabled:opacity-50"
+                        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md shadow-amber-500/25 transition-all flex items-center gap-2 disabled:opacity-50"
+                        style="background-color: #d97706; color: #ffffff;"
                     >
-                        <i x-show="!isSubmittingPass" class="ph ph-lock-key text-base"></i>
-                        <i x-show="isSubmittingPass" class="ph ph-spinner animate-spin text-base"></i>
-                        <span x-text="isSubmittingPass ? 'Menyimpan...' : 'Perbarui Password'"></span>
+                        <i x-show="!isSubmittingPass" class="ph ph-lock-key text-base text-white"></i>
+                        <i x-show="isSubmittingPass" class="ph ph-spinner animate-spin text-base text-white" style="display: none;"></i>
+                        <span x-text="isSubmittingPass ? 'Menyimpan...' : 'Perbarui Password'">Perbarui Password</span>
                     </button>
                 </div>
             </form>

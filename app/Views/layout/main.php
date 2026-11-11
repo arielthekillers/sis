@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url(app_setting('school_favicon', 'uploads/logo.png')) ?>">
     <link rel="apple-touch-icon" href="<?= base_url(app_setting('school_logo', 'uploads/logo.png')) ?>">
     <!-- Tailwind CSS output -->
-    <link href="<?= base_url('css/app.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('css/app.css?v=' . (file_exists(FCPATH . 'css/app.css') ? filemtime(FCPATH . 'css/app.css') : time())) ?>" rel="stylesheet">
     <!-- Alpine.js untuk interaksi menu & dropdown (sangat ringan) -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Phosphor Icons (Menggunakan jsdelivr karena unpkg terkadang lambat) -->
