@@ -24,6 +24,46 @@
             document.documentElement.classList.add('dark');
         }
     </script>
+    <style>
+        /* Custom Slim Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.35);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.6);
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(71, 85, 105, 0.45);
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 116, 139, 0.7);
+        }
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+        }
+        .dark .custom-scrollbar {
+            scrollbar-color: rgba(71, 85, 105, 0.45) transparent;
+        }
+        /* Hide scrollbar utility */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-slate-900 dark:text-slate-200 antialiased overflow-hidden" style="font-family: 'Outfit', sans-serif;" x-data="{ sidebarOpen: false }">
 
@@ -308,15 +348,23 @@
                             }
                             $sidebarRoleName = implode(', ', $groupTitles) ?: 'Pengguna';
                         } catch (\Exception $e) {}
+                        $profileUrl = base_url('profil');
+                        if ($currUser->inGroup('wali_murid') && !$currUser->inGroup('superadmin', 'direksi')) {
+                            $profileUrl = base_url('wali-murid/profil');
+                        } elseif ($currUser->inGroup('wali_kelas') && !$currUser->inGroup('superadmin', 'direksi')) {
+                            $profileUrl = base_url('wali-kelas/profil');
+                        }
                     }
                 ?>
-                <div class="flex items-center gap-2">
-                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($sidebarAvatarName) ?>&background=random" alt="Avatar" class="w-8 h-8 rounded border border-gray-300 dark:border-slate-700">
-                    <div class="flex-1 min-w-0">
-                        <p class="text-[13px] font-medium text-gray-900 dark:text-white truncate" title="<?= esc($sidebarDisplayName) ?>"><?= esc($sidebarDisplayName) ?></p>
-                        <p class="text-[11px] text-gray-500 dark:text-slate-400 truncate" title="<?= esc($sidebarRoleName) ?>"><?= esc($sidebarRoleName) ?></p>
-                    </div>
-                    <a href="<?= url_to('logout') ?>" class="text-gray-400 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1" title="Logout">
+                <div class="flex items-center justify-between gap-2">
+                    <a href="<?= $profileUrl ?>" class="flex items-center gap-2.5 flex-1 min-w-0 group hover:bg-gray-100 dark:hover:bg-slate-800/80 p-1.5 -ml-1.5 rounded-xl transition-all" title="Klik untuk edit profil & akun">
+                        <img src="https://ui-avatars.com/api/?name=<?= urlencode($sidebarAvatarName) ?>&background=random" alt="Avatar" class="w-8 h-8 rounded-lg border border-gray-300 dark:border-slate-700 shrink-0 group-hover:ring-2 group-hover:ring-blue-500/50 transition-all">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[13px] font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" title="<?= esc($sidebarDisplayName) ?>"><?= esc($sidebarDisplayName) ?></p>
+                            <p class="text-[11px] text-gray-500 dark:text-slate-400 truncate" title="<?= esc($sidebarRoleName) ?>"><?= esc($sidebarRoleName) ?></p>
+                        </div>
+                    </a>
+                    <a href="<?= url_to('logout') ?>" class="text-gray-400 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 shrink-0" title="Keluar / Logout">
                         <i class="ph ph-sign-out text-lg"></i>
                     </a>
                 </div>
@@ -424,17 +472,38 @@
 
     </div>
 
-    <!-- Tambahan CSS Khusus untuk Scrollbar agar lebih cantik -->
+    <!-- Tambahan CSS Khusus untuk Scrollbar agar lebih cantik & ramping -->
     <style>
         .custom-scrollbar::-webkit-scrollbar {
             width: 5px;
+            height: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #334155;
+            background-color: #cbd5e1;
             border-radius: 10px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #334155;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #475569;
+        }
+
+        /* Utility untuk scrollbar tersembunyi (tetap dapat di-scroll via swipe/touch/drag) */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
         /* Alpine x-collapse transition bug fix */
         [x-cloak] { display: none !important; }

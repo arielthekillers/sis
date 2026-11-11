@@ -197,6 +197,15 @@ $routes->group('wali-murid', ['namespace' => 'Modules\WaliMurid\Controllers', 'f
 });
 
 // --------------------------------------------------------------------
+// Universal User Self-Profile Route
+// --------------------------------------------------------------------
+$routes->group('profil', ['namespace' => 'App\Controllers', 'filter' => 'session'], static function ($routes) {
+    $routes->get('/', 'Profil::index');
+    $routes->post('update-akun', 'Profil::updateAkun');
+    $routes->post('update-password', 'Profil::updatePassword');
+});
+
+// --------------------------------------------------------------------
 // Public Webhook API (Exempted from CSRF & Session Auth)
 // --------------------------------------------------------------------
 $routes->post('api/xendit/webhook', '\Modules\Keuangan\Controllers\XenditWebhook::index');
